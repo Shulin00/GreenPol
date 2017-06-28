@@ -17,6 +17,7 @@ import numpy as np
 from numpy.lib import recfunctions as recf
 import matplotlib.pyplot as plt
 from plot_path import *
+from prm_util import nps
 samprate=27.  #assumed spin rate of pol modulator for rough time estimation inside files
 
 def get_h5_pointing(filelist,startrev=None, stoprev=None,angles_in_ints=False,azel_era=3):
@@ -203,9 +204,9 @@ def plotnow(fpath,yrmoday,chan,var,st_hour,st_minute,ed_hour,ed_minute,supply_in
     pp=get_h5_pointing(flp)
     dd=get_demodulated_data_from_list(fld,supply_index=supply_index)
     combined=combine_cofe_h5_pointing(dd,pp)
-    plt.plot(combined['az'],combined['sci_data'][chan][var],label=fld[0][-12:-4]+' - '+fld[-1][-12:-4])
+    plt.plot(combined['az'],combined['sci_data'][chan][var],label=chan)
     plt.xlabel('Azimuth angle, degrees')
-    plt.ylabel('Signal'+' '+str(var))
+    plt.ylabel('Signal, V')
     plt.title(chan+' COFE data binned to azimuth, date: '+fld[-1][-21:-13])
     plt.legend()
     plt.grid()
@@ -233,12 +234,77 @@ def plotnow_all(fpath,yrmoday,chan,var,st_hour,st_minute,ed_hour,ed_minute,suppl
         ch='ch%s' %str(c)
         plt.plot(combined['az'],combined['sci_data'][ch][var],label=ch)
     plt.xlabel('Azimuth angle, degrees')
-    plt.ylabel('Signal'+' '+str(var))
+    plt.ylabel('Signal, V')
     plt.title('All COFE data binned to azimuth, date: '+fld[-1][-21:-13])
     plt.legend(bbox_to_anchor=(1,1),loc=2,borderaxespad=0)
     plt.grid()
     plt.show()
     return combined
+
+def plotnow_psd(fpath,yrmoday,chan,var,st_hour,st_minute,ed_hour,ed_minute,supply_index=False):
+    """
+    function to automatically read last 2 science files and last few pointing
+    files, combine and plot signal vs azimuth. yrmoday should be a string
+    '20130502' fpath should point to the 
+    spot where acq_tel and converter.py were run
+    """
+    fs=30*256
+    flp=select_h5(fpath,yrmoday,st_hour,st_minute,ed_hour,ed_minute)
+    fld=select_dat(fpath,yrmoday,st_hour,st_minute,ed_hour,ed_minute)
+    i=0
+    while len(flp)<3:
+        i+=1
+        flp=select_h5(fpath,yrmoday,st_hour,int(st_minute)-i,ed_hour,int(ed_minute)+i)
+##    print('Number of h5:',len(flp))
+    print('Initial h5:',flp[0][-11:][:5])
+    print('Final h5:',flp[-1][-11:][:5])
+##    print('Number of dat:',len(fld))
+    print('Initial dat:',fld[0][-12:][:4])
+    print('Final dat:',fld[-1][-12:][:4])
+    pp=get_h5_pointing(flp)
+    dd=get_demodulated_data_from_list(fld,supply_index=supply_index)
+    combined=combine_cofe_h5_pointing(dd,pp)
+    #plt.psd(combined['sci_data'][chan][var],Fs=fs)
+    
+    freqs,pxx=nps(combined['sci_data'][chan][var],Fs=fs)
+##    plt.ylabel('Power Spectral Density ' + var +r'$^2$/Hz')
+##    plt.show()
+##    freqs,pxx=nps(combined['sci_data'][chan][var],fsreturn freqs,pxx
+    plt.plot(freqs,pxx,label=chan)
+    plt.legend(bbox_to_anchor=(1,1),loc=2,borderaxespad=0)
+    plt.show()
+    return freqs,pxx
+
+
+
+def plotnow_psd_all(fpath,yrmoday,chan,var,st_hour,st_minute,ed_hour,ed_minute,supply_index=False):
+    flp=select_h5(fpath,yrmoday,st_hour,st_minute,ed_hour,ed_minute)
+    fld=select_dat(fpath,yrmoday,st_hour,st_minute,ed_hour,ed_minute)
+    i=0
+    while len(flp)<3:
+        i+=1
+        flp=select_h5(fpath,yrmoday,st_hour,int(st_minute)-i,ed_hour,int(ed_minute)+i)
+    print('Number of h5:',len(flp))
+    print('Initial h5:',flp[0][-11:][:5])
+    print('Final h5:',flp[-1][-11:][:5])
+    print('Number of dat:',len(fld))
+    print('Initial dat:',fld[0][-12:][:4])
+    print('Final dat:',fld[-1][-12:][:4])
+    pp=get_h5_pointing(flp)
+    dd=get_demodulated_data_from_list(fld,supply_index=supply_index)
+    combined=combine_cofe_h5_pointing(dd,pp)
+    fs=30*256
+    for c in range(16):
+        ch='ch%s' %str(c)
+        #plt.psd(combined['sci_data'][ch][var])
+        freqs,pxx=nps(combined['sci_data'][ch][var],Fs=fs)
+##    plt.ylabel('Power Spectral Density ' + var +r'$^2$/Hz')
+##    plt.show()
+##    freqs,pxx=nps(combined['sci_data'][chan][var],fsreturn freqs,pxx
+        plt.plot(freqs,pxx,label=ch)
+    plt.legend(bbox_to_anchor=(1,1),loc=2,borderaxespad=0)
+    plt.show()
+    return freqs,pxx
         
 
 def plotrawnow(yrmoday,chan,var,path,rstep=50,supply_index=False):
@@ -335,7 +401,11 @@ def pointing_plot(var,vector,gpstime):
 if __name__=="__main__":
     yrmoday='20170602'
     fpath='C:/Users/shulin/greenpol/'
-    combdata=plotnow_all(fpath=fpath,yrmoday=yrmoday,chan='ch1',var='T',
-                     st_hour=18,st_minute=16,ed_hour=18,ed_minute=16
-                     )
-    #print get_h5_pointing(select_h5(fpath,yrmoday,17,00,18,00))['az']
+    chan='ch2'
+    var='T'
+    freqs,pxx=plotnow_psd(fpath,yrmoday,chan,var,18,15,22,22)
+##    freqs=freqs[0:10],pxx=pxx[0:10]
+    print freqs,pxx
+    plt.plot(freqs,pxx,'bo')
+    plt.show()
+
