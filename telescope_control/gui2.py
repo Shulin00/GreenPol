@@ -2,6 +2,7 @@
 ##import moveto
 import config
 ##import connect
+import os
 import sys
 sys.path.append('../')
 sys.path.append('C:/Users/shulin/greenpol/telescope_control/')
@@ -14,6 +15,8 @@ sys.path.append('C:/Python27/Lib/site-packages/')
 ##import gclib
 import threading
 import time
+from time import strftime
+import pickle
 from datetime import datetime, timedelta
 import numpy as np
 #from tkinter import ttk #this is for python 3
@@ -259,7 +262,7 @@ class interface:
 
         ########## move to #############
 
-        labelto = Label(movetoFrame, text = 'Move to location')
+        labelto = Label(movetoFrame, text = 'Move to Location')
         labelto.pack()
 
         inputframe2 = Frame(movetoFrame)
@@ -369,7 +372,7 @@ class interface:
         self.l2.grid(row = 0, column = 4, sticky=W)
 
         self.beg = Entry(self.outputframe3, width = 5)
-        self.beg.insert(END, '00-00')
+        self.beg.insert(END, '18-17')
         self.beg.grid(row = 0, column = 5)
 
         self.l3 = Label(self.outputframe3, text='To')
@@ -382,10 +385,10 @@ class interface:
         self.l4 = Label(self.outputframe3, text='yyyy-mm-dd')
         self.l4.grid(row = 1, column = 3, sticky=W)
     
-        self.l5 = Label(self.outputframe3, text='hh-mm')
+        self.l5 = Label(self.outputframe3, text='HH-MM')
         self.l5.grid(row = 1, column = 5, sticky=W)
 
-        self.l6 = Label(self.outputframe3, text='hh-mm')
+        self.l6 = Label(self.outputframe3, text='HH-MM')
         self.l6.grid(row = 1, column =7, sticky=W)
 
         ############# plot drop down menu ###############
@@ -414,23 +417,143 @@ class interface:
         self.motorButton = Button(mainFrame, text='Motor ON/OFF', command=self.motor)
         self.motorButton.pack(side=RIGHT)
 
+        ###########Record and Load Configuration###########
+
+        self.outputframe4 = Frame(outputframe)
+        self.outputframe4.pack()
+        self.backup_l = Entry(self.outputframe4, width=10)
+        self.backup_l.grid(row=1,column=2,sticky=W)
+        self.backup_l.insert(END,'Target Label')
+        self.date_l=Entry(self.outputframe4, width=10)
+        self.date_l.grid(row=1,column=1,sticky=W)
+        self.date_l.insert(END,'2017-06-28')
+##        self.backup_l.insert(END,'2017-06-26/00-00-00')
+##        self.l1 = Label(mainFrame, text='yyyy-mm-dd/HH-MM-SS')
+##        self.l1.pack(side=BOTTOM)
+        self.recordbutton = Button (self.outputframe4, text='Load', command=self.read_txt)
+        self.recordbutton.grid(row=1,column=0,sticky=W)
+        
+        self.backup_r = Entry(self.outputframe4, width=10)
+        self.backup_r.grid(row=0,column=1,sticky=W)
+        self.backup_r.insert(END,'Your Label')
+        self.recordbutton = Button (self.outputframe4, text='Record', command=self.write_txt)
+        self.recordbutton.grid(row=0,column=0,sticky=W)
+
+
 ##                self.var.delete(0,'end')
 ##                self.var.insert(END,self.choices[i])
+
+    def write_txt(self):
+        data={'Move Distance':{'az':self.az.get(),'el':self.el.get()},
+                   'Move to Location':{'az':self.az2.get(),'el':self.el2.get()},
+                   'Az Scan':{'Scan Time':self.tscan.get(),'Iteration #':
+                              self.iterations.get(),'El Step Size':self.deltaEl.get()},
+                   'Linear Scan':{'Location':self.location_lin.get(),
+                                  'Celestial Object':self.cbody_lin.get(),
+                                  'Az Scan #':self.numAzScans_lin.get(),
+                                  'Min Az':self.MinAz_lin.get(),
+                                  'Max Az':self.MaxAz_lin.get()},
+                   'Horizontal Scan':{'Location':self.location_hor.get(),
+                                      'Celestial Object':self.cbody_hor.get(),
+                                      'Az Scan #':self.numAzScans_hor.get(),
+                                      'Min Az':self.MinAz_hor.get(),
+                                      'Max Az':self.MaxAz_hor.get(),
+                                      'Min El':self.MinEl.get(),
+                                      'Max El':self.MaxEl.get(),
+                                      'Step Size':self.stepSize.get()}}
+        date = strftime("%Y-%m-%d")
+        time=strftime("%H-%M-%S")
+        fpath='c:/Users/shulin/greenpol/'
+        os.chdir(fpath)
+        if not os.path.exists(date):#this is the first file being created for that time
+            os.makedirs(date)
+        os.chdir(fpath+'/'+date)
+
+        fname=self.backup_r.get()
+
+        if os.path.isfile(fname+'.txt')==True:
+            print "LABEL EXISTS. Please change your label!"
+        else:
+            with open(fname+'.txt', 'w') as handle:
+                pickle.dump(data,handle)
+
+            print 'Recording a history config at '+ date+'/'+time +','+ 'naming: '+fname
+
+
+    def read_txt(self):
+        fname=self.backup_l.get()
+        fpath='c:/Users/shulin/greenpol/'
+        date=self.date_l.get()
+        os.chdir(fpath+'/'+date)
+
+        with open(fname+'.txt', 'r') as handle:
+            data=pickle.loads(handle.read())
+        print 'Loading a history config of: '+ date +','+ 'naming: '+ fname
+
+        ##Move Distance
+        self.az.delete(0,'end')
+        self.az.insert(END,data['Move Distance']['az'])
+        self.el.delete(0,'end')
+        self.el.insert(END,data['Move Distance']['el'])
+        
+        ##Move to Location
+        self.az2.delete(0,'end')
+        self.az2.insert(END,data['Move to Location']['az'])
+        self.el2.delete(0,'end')
+        self.el2.insert(END,data['Move to Location']['el'])
+
+        ##Az Scan
+        self.tscan.delete(0,'end')
+        self.tscan.insert(END,data['Az Scan']['Scan Time'])
+        self.iterations.delete(0,'end')
+        self.iterations.insert(END,data['Az Scan']['Iteration #'])
+        self.deltaEl.delete(0,'end')
+        self.deltaEl.insert(END,data['Az Scan']['El Step Size'])
+
+        ##Linear Scan
+        self.location_lin.delete(0,'end')
+        self.location_lin.insert(END,data['Linear Scan']['Location'])
+        self.cbody_lin.set(data['Linear Scan']['Celestial Object'])
+        self.numAzScans_lin.delete(0,'end')
+        self.numAzScans_lin.insert(END,data['Linear Scan']['Az Scan #'])
+        self.MinAz_lin.delete(0,'end')
+        self.MinAz_lin.insert(END,data['Linear Scan']['Min Az'])
+        self.MaxAz_lin.delete(0,'end')
+        self.MaxAz_lin.insert(END,data['Linear Scan']['Max Az'])
+
+        ##Horizontal Scan
+        self.location_hor.delete(0,'end')
+        self.location_hor.insert(END,data['Horizontal Scan']['Location'])
+        self.cbody_hor.set(data['Horizontal Scan']['Celestial Object'])
+        self.numAzScans_hor.delete(0,'end')
+        self.numAzScans_hor.insert(END,data['Horizontal Scan']['Az Scan #'])
+        self.MinAz_hor.delete(0,'end')
+        self.MinAz_hor.insert(END,data['Horizontal Scan']['Min Az'])
+        self.MaxAz_hor.delete(0,'end')
+        self.MaxAz_hor.insert(END,data['Horizontal Scan']['Max Az'])
+        self.MinEl.delete(0,'end')
+        self.MinEl.insert(END,data['Horizontal Scan']['Min El'])
+        self.MaxEl.delete(0,'end')
+        self.MaxEl.insert(END,data['Horizontal Scan']['Max El'])
+        self.stepSize.delete(0,'end')
+        self.stepSize.insert(END,data['Horizontal Scan']['Step Size'])
+        
+            
     ####channel options for sci_data
     def update_ch(self,value):
         if value==self.choice1[3]:
-            self.choice2=['ch0','ch1','ch2','ch3','ch4','ch5','ch6','ch7'
+            self.choice2=['all','ch0','ch1','ch2','ch3','ch4','ch5','ch6','ch7'
                           ,'ch8','ch9','ch10','ch11','ch12','ch13','ch14',
-                          'ch15','all']
+                          'ch15']
             self.bar2=StringVar()
             self.bar2.set('ch0')
             self.option2=OptionMenu(self.outputframe3,self.bar2,*self.choice2)
-            self.option2.grid(row=1,column=1,sticky=W)
-            self.choice3=['T','Q','U']
+            self.option2.grid(row=2,column=1,sticky=W)
+            self.choice3=['T','Q','U','PSD(T)','PSD(Q)','PSD(U)']
             self.bar3=StringVar()
             self.bar3.set('T')
             self.option3=OptionMenu(self.outputframe3,self.bar3,*self.choice3)
-            self.option3.grid(row=1,column=2,sticky=W)
+            self.option3.grid(row=1,column=1,sticky=W)
 
             self.l5.grid_forget()
             self.l6.grid_forget()
@@ -595,14 +718,29 @@ class interface:
                                             hour2,minute2))['gpstime']
 
             display_pointing = rt.pointing_plot(var1,y,t)
+
         else:
             var2 = self.bar2.get()
             var3 = self.bar3.get()
-            if var2=='all':
+            psd=['PSD(T)','PSD(Q)','PSD(U)']
+            parameter=['T','Q','U']
+            if var2=='all' and var3 in parameter:
                 rt.plotnow_all(fpath=fpath,yrmoday=yrmoday,chan=var2,var=var3,
                                      st_hour=hour1,st_minute=minute1,
                                      ed_hour=hour2,ed_minute=minute2)
-                
+            if var2=='all' and var3 in psd:
+                indx=psd.index(var3)
+                var3=parameter[indx]
+                rt.plotnow_psd_all(fpath=fpath,yrmoday=yrmoday,chan=var2,var=var3,
+                                     st_hour=hour1,st_minute=minute1,
+                                     ed_hour=hour2,ed_minute=minute2)
+            if var2 != 'all' and var3 in psd:
+                indx=psd.index(var3)
+                var3=parameter[indx]
+                rt.plotnow_psd(fpath=fpath,yrmoday=yrmoday,chan=var2,var=var3,
+                                     st_hour=hour1,st_minute=minute1,
+                                     ed_hour=hour2,ed_minute=minute2)
+               
             else:
 
                 rt.plotnow(fpath=fpath,yrmoday=yrmoday,chan=var2,var=var3,
