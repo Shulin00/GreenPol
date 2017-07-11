@@ -7,6 +7,7 @@ sys.path.append('C:/Python27x86/lib/site-packages')
 sys.path.append('data_aquisition')
 import gclib
 import get_pointing as gp
+from PID import PID
 
 '''
 def wait(c):
@@ -89,38 +90,65 @@ def location(az, el, c):
         elevD = 360. * degtoctsEl + elevD
     '''
 
-    #gclib/galil commands to move az motor
-    c('SPA=' + str(azSP)) #speed, cts/sec
-    c('ACA=' + str(azAC)) #speed, cts/sec
-    c('DCA=' + str(azDC)) #speed, cts/sec
-    c('PRA=' + str(azD)) #relative move
-
-    #gclib/galil commands to move elevation motor
-    c('SPB=' + str(elevSP)) #elevation speed
-    c('ACB=' + str(elevAC)) #speed, cts/sec
-    c('DCB=' + str(elevDC)) #speed, cts/sec
-    c('PRB=' + str(elevD)) #relative move
-
+    #PID control
     print('Moving to object location')
-    c('BGA') #begin motion 
-    #g.GMotionComplete('A')
+    
+    azD=PID.setPoint(azD)
+
+    while azD != 0:
+        azSP=PID.update(azSP)
+        c('SPA=' + str(azSP))
+        c('BGA') #begin motion 
+
     wait(c)
     if c('MG _SCA') != '1.0000':
         return
+        
+    
+    elevD=PID.setPoint(elevD)
 
-    c('BGB') # begin motion
+    while elevD != 0:
+        elevSP=PID.update(elevSP)
+        c('SPB=' + str(elevSP))
+        c('BGB') # begin motion
 
-    #wait for both az and el motors to finish moving
-    #c('AMB')
-    #c('AMA')
-    wait(c)
-
-    #if it hasnt reached its intended position, 
-    #its because I stopped it and the function should end
+    wait(c)    
     if c('MG _SCB') != '1.0000':
         return
-    #g.GMotionComplete('A')
-    #g.GMotionComplete('B')
+    
+
+##    #gclib/galil commands to move az motor
+##    c('SPA=' + str(azSP)) #speed, cts/sec
+##    c('ACA=' + str(azAC)) #speed, cts/sec
+##    c('DCA=' + str(azDC)) #speed, cts/sec
+##    c('PRA=' + str(azD)) #relative move
+##
+##    #gclib/galil commands to move elevation motor
+##    c('SPB=' + str(elevSP)) #elevation speed
+##    c('ACB=' + str(elevAC)) #speed, cts/sec
+##    c('DCB=' + str(elevDC)) #speed, cts/sec
+##    c('PRB=' + str(elevD)) #relative move
+
+##    print('Moving to object location')
+##    c('BGA') #begin motion 
+##    #g.GMotionComplete('A')
+##    wait(c)
+##    if c('MG _SCA') != '1.0000':
+##        return
+##
+##    c('BGB') # begin motion
+##
+##    #wait for both az and el motors to finish moving
+##    #c('AMB')
+##    #c('AMA')
+##    wait(c)
+##
+##    #if it hasnt reached its intended position, 
+##    #its because I stopped it and the function should end
+##    if c('MG _SCB') != '1.0000':
+##        return
+##    #g.GMotionComplete('A')
+##    #g.GMotionComplete('B')
     print(' done.')
 
     #final position
@@ -201,43 +229,72 @@ def distance(az, el, c):
     elevDC = config.elevDC # deceleration
 
     elevD = P2El # distance to move elev by
-    
-    #gclib/galil commands to move az motor
-    c('SPA=' + str(azSP)) #speed, cts/sec
-    c('ACA=' + str(azAC)) #speed, cts/sec
-    c('DCA=' + str(azDC)) #speed, cts/sec
-    c('PRA=' + str(azD)) #relative move
 
-    #gclib/galil commands to move elevation motor
-    c('SPB=' + str(elevSP)) #elevation speed
-    c('ACB=' + str(elevAC)) #speed, cts/sec
-    c('DCB=' + str(elevDC)) #speed, cts/sec
-    c('PRB=' + str(elevD)) #relative move
-
+    #PID control
     print(' Starting Motion...')
 
-    c('BGA') #begin motion 
-    #g.GMotionComplete('A')
-    wait(c)
+    azD=PID.setPoint(azD)
 
-    #if it hasnt reached its intended position, 
-    #its because I stopped it and the function should end
+    while azD != 0:
+        azSP=PID.update(azSP)
+        c('SPA=' + str(azSP))
+        c('BGA') #begin motion 
+
+    wait(c)
     if c('MG _SCA') != '1.0000':
         return
+        
+    
+    elevD=PID.setPoint(elevD)
 
-    c('BGB') # begin motion
+    while elevD != 0:
+        elevSP=PID.update(elevSP)
+        c('SPB=' + str(elevSP))
+        c('BGB') # begin motion
 
-    #wait for both az and el motors to finish moving
-    wait(c)
-
-    #if it hasnt reached its intended position, 
-    #its because I stopped it and the function should end
+    wait(c)    
     if c('MG _SCB') != '1.0000':
         return
-    #c('AMA')
-    #c('AMB')
-    #g.GMotionComplete('A')
-    #g.GMotionComplete('B')
+##    
+##    #gclib/galil commands to move az motor
+##    c('SPA=' + str(azSP)) #speed, cts/sec
+##    c('ACA=' + str(azAC)) #speed, cts/sec
+##    c('DCA=' + str(azDC)) #speed, cts/sec
+##    c('PRA=' + str(azD)) #relative move
+##
+##    #gclib/galil commands to move elevation motor
+##    c('SPB=' + str(elevSP)) #elevation speed
+##    c('ACB=' + str(elevAC)) #speed, cts/sec
+##    c('DCB=' + str(elevDC)) #speed, cts/sec
+##    c('PRB=' + str(elevD)) #relative move
+##
+##    print(' Starting Motion...')
+##
+##    c('BGA') #begin motion
+##    #g.GMotionComplete('A')
+##    wait(c)
+####    if finalP != desiredP£»
+####        while count< 10:
+####            try to get to the actual postion
+##
+##    #if it hasnt reached its intended position, 
+##    #its because I stopped it and the function should end
+##    if c('MG _SCA') != '1.0000':
+##        return
+##
+##    c('BGB') # begin motion
+##
+##    #wait for both az and el motors to finish moving
+##    wait(c)
+##
+##    #if it hasnt reached its intended position, 
+##    #its because I stopped it and the function should end
+##    if c('MG _SCB') != '1.0000':
+##        return
+##    #c('AMA')
+##    #c('AMB')
+##    #g.GMotionComplete('A')
+##    #g.GMotionComplete('B')
     print(' done.')
 
     #final position
