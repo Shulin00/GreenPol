@@ -19,7 +19,7 @@ def wait(c):
         #print(c('MG _BGA'),c('MG _BGB'))
         pass
 
-def linearScan(location, cbody, numAzScans, MinAz, MaxAz, c):
+def linearScan(location, cbody, Az, El, numAzScans, MinAz, MaxAz, c):
   
   try:
     #print('gclib version:', g.GVersion())
@@ -48,7 +48,7 @@ def linearScan(location, cbody, numAzScans, MinAz, MaxAz, c):
     for i in range(0, numAzScans):
 
       #find az, el of various sky objects
-      az, el = planets.getlocation(location, cbody)
+      az, el = planets.getlocation(location, cbody, Az, El)
 
       print('%s az, el: ' % cbody, az, el)
 
@@ -111,7 +111,7 @@ def linearScan(location, cbody, numAzScans, MinAz, MaxAz, c):
   
   return
 
-def horizontalScan(location, cbody, numAzScans, MinAz, MaxAz, MinEl, MaxEl, stepSize, c):
+def horizontalScan(location, cbody, Az, El, numAzScans, MinAz, MaxAz, MinEl, MaxEl, stepSize, c):
   
   try:
     #print('gclib version:', g.GVersion())
@@ -145,7 +145,7 @@ def horizontalScan(location, cbody, numAzScans, MinAz, MaxAz, MinEl, MaxEl, step
       for i in range(0, numAzScans):
 
         #find az, el of varios sky objects
-        az, el = planets.getlocation(location, cbody) 
+        az, el = planets.getlocation(location, cbody, Az, El) 
        
         print('%s az, el: ' % cbody, az, el)
 
