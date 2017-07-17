@@ -5,12 +5,11 @@ import config
 import os
 import sys
 sys.path.append('../')
-sys.path.append('C:/Users/shulin/greenpol/telescope_control/')
-sys.path.append('C:/Users/shulin/greenpol/cofe-python-analysis-tools-master/utils_meinhold')
-sys.path.append('C:/Users/shulin/greenpol/cofe-python-analysis-tools-master/utils_zonca')
-sys.path.append('C:/Python27/Lib/site-packages/')
-#sys.path.append('C:/Python27x86/lib/site-packages')
-##sys.path.append('data_aquisition')
+sys.path.append('D:/software_git_repos/greenpol/telescope_control')
+sys.path.append('D:/software_git_repos/greenpol/cofe-python-analysis-tools-master/utils_meinhold')
+sys.path.append('D:/software_git_repos/greenpol/cofe-python-analysis-tools-master/utils_zonca')
+sys.path.append('C:/Python27/lib/site-packages')
+sys.path.append('data_aquisition')
 ##import get_pointing as gp
 ##import gclib
 import threading
@@ -815,7 +814,7 @@ class interface:
 
 
     def plot(self):
-        fpath='c:/Users/shulin/greenpol/'
+        fpath='D:/software_git_repos/greenpol/telescope_control/'
 
         var1 = self.bar1.get()
         date = self.date.get()
