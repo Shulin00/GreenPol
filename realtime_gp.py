@@ -3,9 +3,9 @@ set of scripts to run while taking data for first look analysis
 (run from main ground_cofe directory so paths work out right"""
 import sys
 sys.path.append('../')
-sys.path.append('C:/Users/shulin/greenpol/telescope_control/')
-sys.path.append('C:/Users/shulin/greenpol/cofe-python-analysis-tools-master/utils_meinhold')
-sys.path.append('C:/Users/shulin/greenpol/cofe-python-analysis-tools-master/utils_zonca')
+sys.path.append('D:/software_git_repos/greenpol/telescope_control')
+sys.path.append('D:/software_git_repos/greenpol/cofe-python-analysis-tools-master/utils_meinhold')
+sys.path.append('D:/software_git_repos/greenpol/cofe-python-analysis-tools-master/utils_zonca')
 from glob import glob
 import os
 import matplotlib.pyplot as plt
@@ -195,12 +195,12 @@ def plotnow(fpath,yrmoday,chan,var,st_hour,st_minute,ed_hour,ed_minute,supply_in
     while len(flp)<3:
         i+=1
         flp=select_h5(fpath,yrmoday,st_hour,int(st_minute)-i,ed_hour,int(ed_minute)+i)
-    print('Number of h5:',len(flp))
-    print('Initial h5:',flp[0][-11:][:5])
-    print('Final h5:',flp[-1][-11:][:5])
-    print('Number of dat:',len(fld))
-    print('Initial dat:',fld[0][-12:][:4])
-    print('Final dat:',fld[-1][-12:][:4])
+    #print('Number of h5:',len(flp))
+    #print('Initial h5:',flp[0][-11:][:5])
+    #print('Final h5:',flp[-1][-11:][:5])
+    #print('Number of dat:',len(fld))
+    #print('Initial dat:',fld[0][-12:][:4])
+    #print('Final dat:',fld[-1][-12:][:4])
     pp=get_h5_pointing(flp)
     dd=get_demodulated_data_from_list(fld,supply_index=supply_index)
     combined=combine_cofe_h5_pointing(dd,pp)
@@ -220,12 +220,12 @@ def plotnow_all(fpath,yrmoday,chan,var,st_hour,st_minute,ed_hour,ed_minute,suppl
     while len(flp)<3:
         i+=1
         flp=select_h5(fpath,yrmoday,st_hour,int(st_minute)-i,ed_hour,int(ed_minute)+i)
-    print('Number of h5:',len(flp))
-    print('Initial h5:',flp[0][-11:][:5])
-    print('Final h5:',flp[-1][-11:][:5])
-    print('Number of dat:',len(fld))
-    print('Initial dat:',fld[0][-12:][:4])
-    print('Final dat:',fld[-1][-12:][:4])
+    #print('Number of h5:',len(flp))
+    #print('Initial h5:',flp[0][-11:][:5])
+    #print('Final h5:',flp[-1][-11:][:5])
+    #print('Number of dat:',len(fld))
+    #print('Initial dat:',fld[0][-12:][:4])
+    #print('Final dat:',fld[-1][-12:][:4])
     pp=get_h5_pointing(flp)
     dd=get_demodulated_data_from_list(fld,supply_index=supply_index)
     combined=combine_cofe_h5_pointing(dd,pp)
@@ -255,12 +255,12 @@ def plotnow_psd(fpath,yrmoday,chan,var,st_hour,st_minute,ed_hour,ed_minute,suppl
     while len(flp)<3:
         i+=1
         flp=select_h5(fpath,yrmoday,st_hour,int(st_minute)-i,ed_hour,int(ed_minute)+i)
-##    print('Number of h5:',len(flp))
-    print('Initial h5:',flp[0][-11:][:5])
-    print('Final h5:',flp[-1][-11:][:5])
-##    print('Number of dat:',len(fld))
-    print('Initial dat:',fld[0][-12:][:4])
-    print('Final dat:',fld[-1][-12:][:4])
+    #print('Number of h5:',len(flp))
+    #print('Initial h5:',flp[0][-11:][:5])
+    #print('Final h5:',flp[-1][-11:][:5])
+    #print('Number of dat:',len(fld))
+    #print('Initial dat:',fld[0][-12:][:4])
+    #print('Final dat:',fld[-1][-12:][:4])
     pp=get_h5_pointing(flp)
     dd=get_demodulated_data_from_list(fld,supply_index=supply_index)
     combined=combine_cofe_h5_pointing(dd,pp)
@@ -284,12 +284,12 @@ def plotnow_psd_all(fpath,yrmoday,chan,var,st_hour,st_minute,ed_hour,ed_minute,s
     while len(flp)<3:
         i+=1
         flp=select_h5(fpath,yrmoday,st_hour,int(st_minute)-i,ed_hour,int(ed_minute)+i)
-    print('Number of h5:',len(flp))
-    print('Initial h5:',flp[0][-11:][:5])
-    print('Final h5:',flp[-1][-11:][:5])
-    print('Number of dat:',len(fld))
-    print('Initial dat:',fld[0][-12:][:4])
-    print('Final dat:',fld[-1][-12:][:4])
+    #print('Number of h5:',len(flp))
+    #print('Initial h5:',flp[0][-11:][:5])
+    #print('Final h5:',flp[-1][-11:][:5])
+    #print('Number of dat:',len(fld))
+    #print('Initial dat:',fld[0][-12:][:4])
+    #print('Final dat:',fld[-1][-12:][:4])
     pp=get_h5_pointing(flp)
     dd=get_demodulated_data_from_list(fld,supply_index=supply_index)
     combined=combine_cofe_h5_pointing(dd,pp)
