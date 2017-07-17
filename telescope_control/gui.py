@@ -1,7 +1,7 @@
-##import scan
-##import moveto
+import scan
+import moveto
 import config
-##import connect
+import connect
 import os
 import sys
 sys.path.append('../')
@@ -10,8 +10,8 @@ sys.path.append('D:/software_git_repos/greenpol/cofe-python-analysis-tools-maste
 sys.path.append('D:/software_git_repos/greenpol/cofe-python-analysis-tools-master/utils_zonca')
 sys.path.append('C:/Python27/lib/site-packages')
 sys.path.append('data_aquisition')
-##import get_pointing as gp
-##import gclib
+import get_pointing as gp
+import gclib
 import threading
 import time
 from time import strftime
@@ -26,18 +26,18 @@ import realtime_gp as rt
 import matplotlib.pyplot as plt
 from plot_path import *
 import planets
-##g = connect.g
-##c = g.GCommand
+g = connect.g
+c = g.GCommand
 ##
-##g2 = connect.g2
-##c2 = g2.GCommand
+g2 = connect.g2
+c2 = g2.GCommand
 
 degtoctsAZ = config.degtoctsAZ
 degtoctsEl = config.degtoctsEl
 
-#offset between galil and beam
-##offsetAz = gp.galilAzOffset 
-##offsetEl = gp.galilElOffset
+offset between galil and beam
+offsetAz = gp.galilAzOffset 
+offsetEl = gp.galilElOffset
 
 class interface:
 
@@ -670,20 +670,20 @@ class interface:
         write_time = 60
         if len(sys.argv)==1: #this is the defualt no argument write time
             sys.argv.append(60) #this sets how long it takes to write a file
-        #data = np.zeros(1000, dtype=[("first", np.int), ("second", np.int)])
-##        eye = gp.getData.Eyeball()
-##        Data = gp.datacollector()
+        data = np.zeros(1000, dtype=[("first", np.int), ("second", np.int)])
+        eye = gp.getData.Eyeball()
+        Data = gp.datacollector()
 
-        #gp.fileStruct(Data.getData()) 
+        gp.fileStruct(Data.getData()) 
 
         time_a = time.time()
         while True:
             #timer loop
 
-##            az, el, gpstime = gp.getAzEl(eye)
-##
-##            Data.add(az,el,gpstime)
-            #print Data.getData()
+            az, el, gpstime = gp.getAzEl(eye)
+
+            Data.add(az,el,gpstime)
+            print Data.getData()
             time_b = time.time()
             delta = time_b-time_a
 
@@ -695,7 +695,7 @@ class interface:
                 self.alttxt.insert('1.0', el)
 
             if(delta>=int(write_time)): 
-##                gp.fileStruct(Data.getData(), Data)
+                gp.fileStruct(Data.getData(), Data)
                 time_a=time.time();
                 print("file written")
                 
