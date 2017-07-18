@@ -3,7 +3,7 @@
 import sys
 ##sys.path.append('C:/users/labuser/anaconda/lib/site-packages')
 from datetime import datetime
-from astropy.coordinates import AltAz, Angle, EarthLocation, ICRS
+from astropy.coordinates import AltAz, Angle, EarthLocation, ICRS, SkyCoord
 from astropy import units as u
 import ephem
 from numpy import sin,cos,arcsin,arccos,pi
@@ -25,50 +25,25 @@ def location_config(LOCATION):
 def azalt_to_radec(LOCATION,AZ,ALT):
     Location=location_config(LOCATION)
     time=datetime.utcnow()
-    obs=ephem.Observer()
-    obs.long=str(Location.longitude.deg)
-    obs.lat=str(Location.latitude.deg)
-    obs.elevation=float(str(Location.height).split()[0])
-    obs.date=time
-    ra,dec=obs.radec_of(AZ,ALT)
+    altaz=AltAz(alt=ALT*u.deg,az=AZ*u.deg,location=location,obstime=time)
+    frame='icrs'
+    frame=astropy.coordinates.frame_transform_graph.lookup_name(frame)()
+    radec=altaz.transform_to(frame)
+    ra=radec.ra.deg
+    dec=radec.dec.deg
+    
     return ra,dec
     
 
 def radec_to_azalt(LOCATION,RA,DEC):
     Location=location_config(LOCATION)
-    time=datetime.utcnow()
-    obs=ephem.Observer()
-    obs.long=str(Location.longitude.deg)
-    obs.lat=str(Location.latitude.deg)
-    obs.elevation=float(str(Location.height).split()[0])
-    obs.date=time
-    LONG=Location.longitude.deg
-    LAT=Location.latitude.deg
-    RA=ephem.degrees(str(RA))*pi/180
-    DEC=ephem.degrees(str(DEC))*pi/180
-    LST=ephem.degrees(obs.sidereal_time())
-    HA=LST-RA
-    if HA<0:
-        HA=HA+360
-        print HA
-    sin_alt=sin(DEC)*sin(LAT)+cos(LAT)*cos(HA)
-    ALT=ephem.degrees(arcsin(sin_alt))
-    print ALT
-    cos_a=float(sin(DEC)-sin(ALT)*sin(LAT))/(cos(ALT)*cos(LAT))
-    A=ephem.degrees(arccos(cos_a))
-    if sin(HA)<0:
-        AZ=A
-        print AZ
-    else:
-        AZ=ephem.degrees('360')-A
-        print AZ
+    time=datetime.utcnow() 
+    radec=SkyCoord(ra=RA*u.deg,dec=DEC*u.deg,frame='icrs',unit='deg')
+    altaz=radec.transform_to(AltAz(obstime=time,location=location))
+    az=altaz.az.deg
+    el=altaz.alt.deg
 
-    return AZ, ALT
-
-  
-  
-  
-  
+    return az, el
   
   
 
