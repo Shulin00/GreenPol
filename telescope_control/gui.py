@@ -266,30 +266,34 @@ class interface:
         labelto = Label(movetoFrame, text = 'Move to Location')
         labelto.pack()
 
-        inputframe2 = Frame(movetoFrame)
-        inputframe2.pack(side=TOP)
+        self.inputframe2 = Frame(movetoFrame)
+        self.inputframe2.pack(side=TOP)
 
-        buttonframe2 = Frame(movetoFrame)
-        buttonframe2.pack(side=BOTTOM)
+        self.buttonframe2 = Frame(movetoFrame)
+        self.buttonframe2.pack(side=BOTTOM)
 
-        self.l3 = Label(inputframe2, text='az')
-        self.l3.grid(row = 0, column = 0, sticky=W)
+        self.mtl1 = Label(self.inputframe2, text='az')
+        self.mtl1.grid(row = 0, column = 0, sticky=W)
 
-        self.l4 = Label(inputframe2, text='el')
-        self.l4.grid(row = 1, column = 0, sticky=W)
+        self.mtl2 = Label(self.inputframe2, text='el')
+        self.mtl2.grid(row = 1, column = 0, sticky=W)
 
         #user input
-        self.az2 = Entry(inputframe2)
+        self.az2 = Entry(self.inputframe2)
         self.az2.insert(END, '0.0')
         self.az2.grid(row = 0, column = 1)
 
-        self.el2 = Entry(inputframe2)
+        self.el2 = Entry(self.inputframe2)
         self.el2.insert(END, '0.0')
         self.el2.grid(row = 1, column = 1)
 
-        self.scan = Button(buttonframe2, 
+        self.scan = Button(self.buttonframe2, 
             text='Start Move', command=self.moveTo)
         self.scan.pack(side=LEFT)
+
+        self.convert=Button(self.buttonframe2,
+                            text='Convert(deg)',command=self.update_moveto)
+        self.convert.pack(side=RIGHT)
 
 
         ####### notebook layout #########
@@ -332,24 +336,29 @@ class interface:
         outputframe1 = Frame(outputframe)
         outputframe1.pack()
 
-        outputframe2 = Frame(outputframe)
-        outputframe2.pack()
+        self.outputframe2 = Frame(outputframe)
+        self.outputframe2.pack()
 
         ##### main outputframe
         self.title = Label(outputframe1, text='Feedback')
         self.title.pack(side=LEFT)
 
-        self.laz = Label(outputframe2, text='az')
+        self.laz = Label(self.outputframe2, text='az')
         self.laz.grid(row = 0, column = 0, sticky = W)
 
-        self.aztxt = Text(outputframe2, height = 1, width = 15)
+        self.aztxt = Text(self.outputframe2, height = 1, width = 15)
         self.aztxt.grid(row = 0, column = 1)
 
-        self.lalt = Label(outputframe2, text='el')
+        self.lalt = Label(self.outputframe2, text='el')
         self.lalt.grid(row = 1, column = 0, sticky = W)
 
-        self.alttxt = Text(outputframe2, height = 1, width = 15)
+        self.alttxt = Text(self.outputframe2, height = 1, width = 15)
         self.alttxt.grid(row = 1, column = 1)
+        
+        self.radec=Button(self.outputframe2,text='Show RA-Dec',command=self.show_radec)
+        self.radec.grid(row=2,column=1,sticky=W)
+        self.noradec=Button(self.outputframe2,text='Hide RA-Dec',command=self.hide_radec)
+        self.noradec.grid(row=2,column=3,sticky=W)
         '''
         #galil output
         self.lazG = Label(outputframe2, text='az Galil')
@@ -545,7 +554,8 @@ class interface:
             self.stepSize.insert(END,data['Horizontal Scan']['Step Size'])
         except IOError:
             print 'No Labels Found'
-        
+            
+    #tacking coordinate input        
     def update_cbody_lin(self,cbody):
         if cbody=='Sky-Cor':
 
@@ -553,19 +563,17 @@ class interface:
             self.cor1_lin.grid(row=1,column=3,sticky=W)
             self.cor2_lin=Entry(self.inputframe1,width=5)
             self.cor2_lin.grid(row=1,column=5,sticky=W)
-            self.cor1l_label = Label(self.inputframe1, text='Az')
+            self.cor1l_label = Label(self.inputframe1, text='RA')
             self.cor1l_label.grid(row =1, column = 2, sticky=W)
-            self.cor2l_label = Label(self.inputframe1, text='El')
+            self.cor2l_label = Label(self.inputframe1, text='Dec')
             self.cor2l_label.grid(row =1, column = 4, sticky=W)
 
-            self.corbt_lin=Button(self.inputframe1,text='Conversion(deg)',command=self.convert_lin)
-            self.corbt_lin.grid(row=1,column=6,sticky=W)
         else:
             self.cor1_lin.grid_forget()
             self.cor2_lin.grid_forget()
             self.cor1l_label.grid_forget()
             self.cor2l_label.grid_forget()
-            self.corbt_lin.grid_forget()
+
             
     def update_cbody_hor(self,cbody):
         if cbody=='Sky-Cor':
@@ -573,51 +581,16 @@ class interface:
             self.cor1_hor.grid(row=1,column=3,sticky=W)
             self.cor2_hor=Entry(self.inputframe,width=5)
             self.cor2_hor.grid(row=1,column=5,sticky=W)
-            self.cor1h_label = Label(self.inputframe, text='Az')
+            self.cor1h_label = Label(self.inputframe, text='RA')
             self.cor1h_label.grid(row =1, column = 2, sticky=W)
-            self.cor2h_label = Label(self.inputframe, text='El')
+            self.cor2h_label = Label(self.inputframe, text='Dec')
             self.cor2h_label.grid(row =1, column = 4, sticky=W)
-
-            self.corbt_hor=Button(self.inputframe,text='Conversion(deg)',command=self.convert_hor)
-            self.corbt_hor.grid(row=1,column=6,sticky=W)
         else:
             self.cor1_hor.grid_forget()
             self.cor2_hor.grid_forget()
             self.cor1h_label.grid_forget()
-            self.cor2h_label.grid_forget()
-            self.corbt_hor.grid_forget()
-    def convert_lin(self):
-        tar=self.cor1l_label.cget('text')
-        if tar=='Az':
-            self.cor1l_label.grid_forget()
-            self.cor1l_label=Label(self.inputframe1,text='RA')
-            self.cor1l_label.grid(row =1, column = 2, sticky=W)
-            self.cor2l_label.grid_forget()
-            self.cor2l_label=Label(self.inputframe1,text='Dec')
-            self.cor2l_label.grid(row =1, column = 4, sticky=W)
-        if tar=='RA':
-            self.cor1l_label.grid_forget()
-            self.cor1l_label=Label(self.inputframe1,text='Az')
-            self.cor1l_label.grid(row =1, column = 2, sticky=W)
-            self.cor2l_label.grid_forget()
-            self.cor2l_label=Label(self.inputframe1,text='El')
-            self.cor2l_label.grid(row =1, column = 4, sticky=W)
-    def convert_hor(self):
-        tar=self.cor1h_label.cget('text')
-        if tar=='Az':
-            self.cor1h_label.grid_forget()
-            self.cor1h_label=Label(self.inputframe,text='RA')
-            self.cor1h_label.grid(row =1, column = 2, sticky=W)
-            self.cor2h_label.grid_forget()
-            self.cor2h_label=Label(self.inputframe,text='Dec')
-            self.cor2h_label.grid(row =1, column = 4, sticky=W)
-        if tar=='RA':
-            self.cor1h_label.grid_forget()
-            self.cor1h_label=Label(self.inputframe,text='Az')
-            self.cor1h_label.grid(row =1, column = 2, sticky=W)
-            self.cor2h_label.grid_forget()
-            self.cor2h_label=Label(self.inputframe,text='El')
-            self.cor2h_label.grid(row =1, column = 4, sticky=W)
+            self.cor2h_label.grid_forget()    
+
     ####channel options for sci_data
     def update_ch(self,value):
         if value==self.choice1[3]:
@@ -663,7 +636,23 @@ class interface:
                 #this is currently asking galil for position, it needs to ask encoder
 
                 #time.sleep(self.interval) 
-           
+                
+    #monitor ra-dec displaying option            
+    def show_radec(self):
+        self.lra=Label(self.outputframe2, text='ra')
+        self.lra.grid(row=0, column=2, sticky=W)
+        self.ratxt=Text(self.outputframe2, height=1, width=15)
+        self.ratxt.grid(row=0,column=3)
+
+        self.ldec=Label(self.outputframe2, text='dec')
+        self.ldec.grid(row=1, column=2, sticky=W)
+        self.dectxt=Text(self.outputframe2, height=1, width=15)
+        self.dectxt.grid(row=1, column=3)
+    def hide_radec(self):
+        self.lra.grid_forget()
+        self.ratxt.grid_forget()
+        self.ldec.grid_forget()
+        self.dectxt.grid_forget()       
     
     def moniter(self):
     
@@ -686,6 +675,8 @@ class interface:
             print Data.getData()
             time_b = time.time()
             delta = time_b-time_a
+            location=self.location_lin.get()
+            ra,dec=planets.azalt_to_radec(location,az,el)
 
             if (delta>=2):
                 #print(rev,az,el)
@@ -693,6 +684,10 @@ class interface:
                 self.aztxt.insert('1.0', az)
                 self.alttxt.delete('1.0', END)
                 self.alttxt.insert('1.0', el)
+                self.ratxt.delete('1.0', END)
+                self.ratxt.insert('1.0', ra)
+                self.dectxt.delete('1.0', END)
+                self.dectxt.insert('1.0', dec)
 
             if(delta>=int(write_time)): 
                 gp.fileStruct(Data.getData(), Data)
@@ -723,34 +718,21 @@ class interface:
         numAzScans = int(self.numAzScans_lin.get())
         MinAz = float(self.MinAz_lin.get())
         MaxAz = float(self.MaxAz_lin.get())
-        Az=None
-        El=None
         if cbody!='Sky-Cor':
-            thread = threading.Thread(target=scan.linearScan, args=(location, cbody,Az,El, numAzScans, MinAz, MaxAz, c))
+            thread = threading.Thread(target=scan.linearScan, args=(location, cbody, numAzScans, MinAz, MaxAz, c))
             thread.daemon = True
             thread.start()
         if cbody=='Sky-Cor':
-            tar=self.cor1l_label.cget('text')
-            if tar=='Az':
-                Az=self.cor1_lin.get()
-                El=self.cor2_lin.get()
-                thread = threading.Thread(target=scan.linearScan, args=(location, cbody,Az,El, numAzScans, MinAz, MaxAz, c))
-                thread.daemon = True
-                thread.start()
-            if tar=='RA':
-                LOCATION=location
-                RA=self.cor1_lin.get()
-                DEC=self.cor2_lin.get()
-                Az,El=planets.radec_to_azalt(LOCATION,RA,DEC)
-                thread = threading.Thread(target=scan.linearScan, args=(location, cbody,Az,El, numAzScans, MinAz, MaxAz, c))
-                thread.daemon = True
-                thread.start()
-                
-                
- 
-                
-            
-
+            CBODY=[]
+            RA=self.cor1_lin.get()
+            DEC=self.cor2_lin.get()
+            Az,El=planets.radec_to_azalt(LOCATION,RA,DEC)
+            CBODY.append(cbody)
+            CBODY.append(Az)
+            CBODY.append(El)
+            thread = threading.Thread(target=scan.linearScan, args=(location, CBODY, numAzScans, MinAz, MaxAz, c))
+            thread.daemon = True
+            thread.start()
         #scan.linearScan(location, cbody, numAzScans, MinAz, MaxAz, c)
 
     def horizontal(self):
@@ -762,33 +744,22 @@ class interface:
         MinEl = float(self.MinEl.get())
         MaxEl = float(self.MaxEl.get())
         stepSize = float(self.stepSize.get())
-        Az=None
-        El=None
         if cbody!='Sky-Cor':
-            thread = threading.Thread(target=scan.horizontalScan, args=(location, cbody,Az,El, numAzScans, MinAz, MaxAz, MinEl, MaxEl, stepSize, c))
+            thread = threading.Thread(target=scan.horizontalScan, args=(location, cbody, numAzScans, MinAz, MaxAz, MinEl, MaxEl, stepSize, c))
             thread.daemon = True
             thread.start()
         if cbody=='Sky-Cor':
-            tar=self.cor1h_label.cget('text')
-            if tar=='Az':
-                Az=self.cor1_hor.get()
-                El=self.cor2_hor.get()
-                thread = threading.Thread(target=scan.horizontalScan, args=(location, cbody,Az,El, numAzScans, MinAz, MaxAz, MinEl, MaxEl, stepSize, c))
-                thread.daemon = True
-                thread.start()
-            if tar=='RA':
-                LOCATION=location
-                RA=self.cor1_hor.get()
-                DEC=self.cor2_hor.get()
-                Az,El=planets.radec_to_azalt(LOCATION,RA,DEC)
-                thread = threading.Thread(target=scan.horizontalScan, args=(location, cbody,Az,El, numAzScans, MinAz, MaxAz, MinEl, MaxEl, stepSize, c))
-                thread.daemon = True
-                thread.start()
-
-        
-
+            CBODY=[]
+            RA=self.cor1_hor.get()
+            DEC=self.cor2_hor.get()
+            Az,El=planets.radec_to_azalt(LOCATION,RA,DEC)
+            CBODY.append(cbody)
+            CBODY.append(Az)
+            CBODY.append(El)
+            thread = threading.Thread(target=scan.horizontalScan, args=(location, CBODY, numAzScans, MinAz, MaxAz, MinEl, MaxEl, stepSize, c))
+            thread.daemon = True
+            thread.start()
         #scan.horizontalScan(location, cbody, numAzScans, MinAz, MaxAz, MinEl, MaxEl, stepSize, c)
-
         
 
     def moveDist(self):
@@ -801,14 +772,33 @@ class interface:
 
         #moveto.distance(az, el, c)
 
+#moveto ra-dec displaying option
+    def update_moveto(self):
+        label=self.mtl1.cget('text')
+        if label=='az':
+            self.mtl1.grid_forget()
+            self.mtl1=Label(self.inputframe2,text='ra')
+            self.mtl1.grid(row=0,column=0,sticky=W)
+            self.mtl2.grid_forget()
+            self.mtl2=Label(self.inputframe2,text='dec')
+            self.mtl2.grid(row=1,column=0,sticky=W)
+        if label=='ra':
+            self.mtl1.grid_forget()
+            self.mtl1=Label(self.inputframe2,text='az')
+            self.mtl1.grid(row=0,column=0,sticky=W)
+            self.mtl2.grid_forget()
+            self.mtl2=Label(self.inputframe2,text='el')
+            self.mtl2.grid(row=1,column=0,sticky=W)
+
 
     def moveTo(self):
-        az = float(self.az2.get())
-        el = float(self.el2.get())
-
-        thread = threading.Thread(target=moveto.location, args=(az, el, c))
-        thread.daemon = True
-        thread.start()
+        label=self.mtl1.cget('text')
+        if label=='az':
+            az = float(self.az2.get())
+            el = float(self.el2.get())
+            thread = threading.Thread(target=moveto.location, args=(az, el, c))
+            thread.daemon = True
+            thread.start()
 
         #moveto.location(az, el, c)
 
