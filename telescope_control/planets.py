@@ -22,36 +22,49 @@ def location_config(LOCATION):
   )
     return locations[LOCATION]
 
-def radec_to_azalt(LOCATION,RA,DEC):
-  Location=location_config(LOCATION)
-  time=datetime.utcnow()
-  obs=ephem.Observer()
-  obs.long=str(Location.longitude.deg)
-  obs.lat=str(Location.latitude.deg)
-  obs.elevation=float(str(Location.height).split()[0])
-  obs.date=time
-  LONG=Location.longitude.deg
-  LAT=Location.latitude.deg
-  RA=ephem.degrees(str(RA))*pi/180
-  DEC=ephem.degrees(str(DEC))*pi/180
-  LST=ephem.degrees(obs.sidereal_time())
-  HA=LST-RA
-  if HA<0:
-    HA=HA+360
-    print HA
-  sin_alt=sin(DEC)*sin(LAT)+cos(LAT)*cos(HA)
-  ALT=ephem.degrees(arcsin(sin_alt))
-  print ALT
-  cos_a=float(sin(DEC)-sin(ALT)*sin(LAT))/(cos(ALT)*cos(LAT))
-  A=ephem.degrees(arccos(cos_a))
-  if sin(HA)<0:
-    AZ=A
-    print AZ
-  else:
-    AZ=ephem.degrees('360')-A
-    print AZ
+def azalt_to_radec(LOCATION,AZ,ALT):
+    Location=location_config(LOCATION)
+    time=datetime.utcnow()
+    obs=ephem.Observer()
+    obs.long=str(Location.longitude.deg)
+    obs.lat=str(Location.latitude.deg)
+    obs.elevation=float(str(Location.height).split()[0])
+    obs.date=time
+    ra,dec=obs.radec_of(AZ,ALT)
+    return ra,dec
+    
 
-  return AZ, ALT
+def radec_to_azalt(LOCATION,RA,DEC):
+    Location=location_config(LOCATION)
+    time=datetime.utcnow()
+    obs=ephem.Observer()
+    obs.long=str(Location.longitude.deg)
+    obs.lat=str(Location.latitude.deg)
+    obs.elevation=float(str(Location.height).split()[0])
+    obs.date=time
+    LONG=Location.longitude.deg
+    LAT=Location.latitude.deg
+    RA=ephem.degrees(str(RA))*pi/180
+    DEC=ephem.degrees(str(DEC))*pi/180
+    LST=ephem.degrees(obs.sidereal_time())
+    HA=LST-RA
+    if HA<0:
+        HA=HA+360
+        print HA
+    sin_alt=sin(DEC)*sin(LAT)+cos(LAT)*cos(HA)
+    ALT=ephem.degrees(arcsin(sin_alt))
+    print ALT
+    cos_a=float(sin(DEC)-sin(ALT)*sin(LAT))/(cos(ALT)*cos(LAT))
+    A=ephem.degrees(arccos(cos_a))
+    if sin(HA)<0:
+        AZ=A
+        print AZ
+    else:
+        AZ=ephem.degrees('360')-A
+        print AZ
+
+    return AZ, ALT
+
   
   
   
