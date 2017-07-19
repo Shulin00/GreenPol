@@ -782,6 +782,11 @@ class interface:
             self.mtl2.grid_forget()
             self.mtl2=Label(self.inputframe2,text='dec')
             self.mtl2.grid(row=1,column=0,sticky=W)
+            self.mtl3=Label(self.inputframe2,text='location')
+            self.mtl3.grid(row=2,column=0,sticky=W)
+            self.loctxt=Entry(self.inputframe2,width=20)
+            self.loctxt.grid(row=2,column=1,sticky=W)
+            self.loctxt.insert(END,'UCSB')
         if label=='ra':
             self.mtl1.grid_forget()
             self.mtl1=Label(self.inputframe2,text='az')
@@ -789,6 +794,8 @@ class interface:
             self.mtl2.grid_forget()
             self.mtl2=Label(self.inputframe2,text='el')
             self.mtl2.grid(row=1,column=0,sticky=W)
+            self.mtl3.grid_forget()
+            self.loctxt.grid_forget()
 
 
     def moveTo(self):
