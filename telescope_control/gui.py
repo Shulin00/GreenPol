@@ -801,6 +801,17 @@ class interface:
             thread.start()
 
         #moveto.location(az, el, c)
+        if label=='ra':
+            location1=self.location_lin.get()
+            location2=self.location_hor.get()
+            if location1 != location2:
+                print('Please specify your location in the "Track" subwindow')
+            ra = float(self.az2.get())
+            dec = float(self.el2.get())
+            az,el=planets.radec_to_azalt(location1,ra,dec)
+            thread = threading.Thread(target=moveto.location, args=(az, el, c))
+            thread.daemon = True
+            thread.start()
 
 
     def plot(self):
