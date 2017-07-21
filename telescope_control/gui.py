@@ -1,17 +1,19 @@
-import scan
-import moveto
 import config
-import connect
+config.update_config()
+##import scan
+import moveto
+##import connect
 import os
 import sys
 sys.path.append('../')
-sys.path.append('D:/software_git_repos/greenpol/telescope_control')
-sys.path.append('D:/software_git_repos/greenpol/cofe-python-analysis-tools-master/utils_meinhold')
-sys.path.append('D:/software_git_repos/greenpol/cofe-python-analysis-tools-master/utils_zonca')
-sys.path.append('C:/Python27/lib/site-packages')
-sys.path.append('data_aquisition')
-import get_pointing as gp
-import gclib
+sys.path.append('C:/Users/shulin/greenpol/telescope_control/')
+sys.path.append('C:/Users/shulin/greenpol/cofe-python-analysis-tools-master/utils_meinhold')
+sys.path.append('C:/Users/shulin/greenpol/cofe-python-analysis-tools-master/utils_zonca')
+sys.path.append('C:/Python27/Lib/site-packages/')
+#sys.path.append('C:/Python27x86/lib/site-packages')
+##sys.path.append('data_aquisition')
+##import get_pointing as gp
+##import gclib
 import threading
 import time
 from time import strftime
@@ -26,18 +28,18 @@ import realtime_gp as rt
 import matplotlib.pyplot as plt
 from plot_path import *
 import planets
-g = connect.g
-c = g.GCommand
+##g = connect.g
+##c = g.GCommand
 ##
-g2 = connect.g2
-c2 = g2.GCommand
+##g2 = connect.g2
+##c2 = g2.GCommand
 
-degtoctsAZ = config.degtoctsAZ
-degtoctsEl = config.degtoctsEl
+##degtoctsAZ = config.degtoctsAZ
+##degtoctsEl = config.degtoctsEl
 
-offset between galil and beam
-offsetAz = gp.galilAzOffset 
-offsetEl = gp.galilElOffset
+#offset between galil and beam
+##offsetAz = gp.galilAzOffset 
+##offsetEl = gp.galilElOffset
 
 class interface:
 
@@ -108,121 +110,109 @@ class interface:
 
         ###### linear scan ######
         page2 = Frame(nb2)
-        self.inputframe1 = Frame(page2)
-        self.inputframe1.pack(side=TOP)
+        self.inputframe_lin = Frame(page2)
+        self.inputframe_lin.pack(side=TOP)
 
         buttonframe = Frame(page2)
         buttonframe.pack(side=BOTTOM)
 
-        self.l1 = Label(self.inputframe1, text='Location')
-        self.l1.grid(row = 0, column = 0, sticky=W)
-        self.l2 = Label(self.inputframe1, text='Celestial Object')
+        self.l2 = Label(self.inputframe_lin, text='Celestial Object')
         self.l2.grid(row = 1, column = 0, sticky=W)
-        self.l3 = Label(self.inputframe1, text='Az Scan #')
+        self.l3 = Label(self.inputframe_lin, text='Az Scan #')
         self.l3.grid(row = 2, column = 0, sticky=W)
-        self.l4 = Label(self.inputframe1, text='Min Az')
+        self.l4 = Label(self.inputframe_lin, text='Min Az')
         self.l4.grid(row = 3, column = 0, sticky=W)
-        self.l5 = Label(self.inputframe1, text='Max AZ')
+        self.l5 = Label(self.inputframe_lin, text='Max AZ')
         self.l5.grid(row = 4, column = 0, sticky=W)
 
         #user input
-        self.location_lin = Entry(self.inputframe1,width=10)
-        self.location_lin.insert(END, 'UCSB')
-        self.location_lin.grid(row = 0, column = 1,sticky=W)
 
-        self.numAzScans_lin = Entry(self.inputframe1,width=10)
+        self.numAzScans_lin = Entry(self.inputframe_lin,width=10)
         self.numAzScans_lin.insert(END, '2')
         self.numAzScans_lin.grid(row = 2, column = 1,sticky=W)
 
-        self.MinAz_lin = Entry(self.inputframe1,width=10)
+        self.MinAz_lin = Entry(self.inputframe_lin,width=10)
         self.MinAz_lin.insert(END, '-10.0')
         self.MinAz_lin.grid(row = 3, column = 1,sticky=W)
 
-        self.MaxAz_lin = Entry(self.inputframe1,width=10)
+        self.MaxAz_lin = Entry(self.inputframe_lin,width=10)
         self.MaxAz_lin.insert(END, '10.0')
         self.MaxAz_lin.grid(row = 4, column = 1,sticky=W)
+
+
+        ##########linear tracking drop down#######
+        self.planets = ['Sky-Coord','Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune']
+        self.cbody_lin=StringVar(self.inputframe_lin)
+        self.cbody_lin.set(self.planets[1])
+        self.phouse=OptionMenu(self.inputframe_lin,self.cbody_lin,*self.planets,command=self.update_cbody_lin)
+        self.phouse.grid(row = 1, column = 1,sticky=W)
 
         self.scan = Button(buttonframe, 
             text='Start Scan', 
             command=self.linear)
         self.scan.pack(side=LEFT)
-        ##########linear tracking drop down#######
-        self.c_lin_frame=Frame(self.inputframe1,width=10)
-        self.planets = ['Sky-Cor','Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune']
-        self.cbody_lin=StringVar(self.inputframe1)
-        self.cbody_lin.set(self.planets[1])
-        self.phouse=OptionMenu(self.inputframe1,self.cbody_lin,*self.planets,command=self.update_cbody_lin)
-  
-        self.phouse.grid(row = 1, column = 1,sticky=W)
-
-
 
         ###### horizontal scan ######
         page3 = Frame(nb2)
-        self.inputframe = Frame(page3)
-        self.inputframe.pack(side=TOP)
+        self.inputframe_hor = Frame(page3)
+        self.inputframe_hor.pack(side=TOP)
 
         buttonframe = Frame(page3)
         buttonframe.pack(side=BOTTOM)
 
-        self.l1 = Label(self.inputframe, text='Location')
-        self.l1.grid(row = 0, column = 0, sticky=W)
-        self.l2 = Label(self.inputframe, text='Celestial Object')
+        self.l2 = Label(self.inputframe_hor, text='Celestial Object')
         self.l2.grid(row = 1, column = 0, sticky=W)
-        self.l3 = Label(self.inputframe, text='Az Scan #')
+        self.l3 = Label(self.inputframe_hor, text='Az Scan #')
         self.l3.grid(row = 2, column = 0, sticky=W)
-        self.l4 = Label(self.inputframe, text='Min Az')
+        self.l4 = Label(self.inputframe_hor, text='Min Az')
         self.l4.grid(row = 3, column = 0, sticky=W)
-        self.l5 = Label(self.inputframe, text='Max AZ')
+        self.l5 = Label(self.inputframe_hor, text='Max AZ')
         self.l5.grid(row = 4, column = 0, sticky=W)
-        self.l6 = Label(self.inputframe, text='Min El')
+        self.l6 = Label(self.inputframe_hor, text='Min El')
         self.l6.grid(row = 5, column = 0, sticky=W)
-        self.l7 = Label(self.inputframe, text='Max El')
+        self.l7 = Label(self.inputframe_hor, text='Max El')
         self.l7.grid(row = 6, column = 0, sticky=W)
-        self.l8 = Label(self.inputframe, text='Step Size')
+        self.l8 = Label(self.inputframe_hor, text='Step Size')
         self.l8.grid(row = 7, column = 0, sticky=W)
 
         #user input
-        self.location_hor = Entry(self.inputframe,width=10)
-        self.location_hor.insert(END, 'UCSB')
-        self.location_hor.grid(row = 0, column = 1,sticky=W)
-
-        self.numAzScans_hor = Entry(self.inputframe,width=10)
+        self.numAzScans_hor = Entry(self.inputframe_hor,width=10)
         self.numAzScans_hor.insert(END, '2')
         self.numAzScans_hor.grid(row = 2, column = 1,sticky=W)
 
-        self.MinAz_hor = Entry(self.inputframe,width=10)
+        self.MinAz_hor = Entry(self.inputframe_hor,width=10)
         self.MinAz_hor.insert(END, '-10.0')
         self.MinAz_hor.grid(row = 3, column = 1,sticky=W)
 
-        self.MaxAz_hor = Entry(self.inputframe,width=10)
+        self.MaxAz_hor = Entry(self.inputframe_hor,width=10)
         self.MaxAz_hor.insert(END, '10.0')
         self.MaxAz_hor.grid(row = 4, column = 1,sticky=W)
 
-        self.MinEl = Entry(self.inputframe,width=10)
+        self.MinEl = Entry(self.inputframe_hor,width=10)
         self.MinEl.insert(END, '-10.0')
         self.MinEl.grid(row = 5, column = 1,sticky=W)
 
-        self.MaxEl = Entry(self.inputframe,width=10)
+        self.MaxEl = Entry(self.inputframe_hor,width=10)
         self.MaxEl.insert(END, '10.0')
         self.MaxEl.grid(row = 6, column = 1,sticky=W)
 
-        self.stepSize = Entry(self.inputframe,width=10)
+        self.stepSize = Entry(self.inputframe_hor,width=10)
         self.stepSize.insert(END, '10.0')
         self.stepSize.grid(row = 7, column = 1,sticky=W)
+
+
+        
+        ##########horizontal tracking drop down#######
+        self.planets = ['Sky-Coord', 'Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune']
+        self.cbody_hor=StringVar(self.inputframe_hor)
+        self.cbody_hor.set(self.planets[1])
+        self.phouse=OptionMenu(self.inputframe_hor,self.cbody_hor,*self.planets,command=self.update_cbody_hor)  
+        self.phouse.grid(row = 1, column = 1,sticky=W)
 
         self.scan = Button(buttonframe, 
             text='Start Scan', 
             command=self.horizontal)
         self.scan.pack(side=LEFT)
-        
-        ##########horizontal tracking drop down#######
-        self.planets = ['Sky-Cor', 'Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune']
-        self.cbody_hor=StringVar(self.inputframe)
-        self.cbody_hor.set(self.planets[1])
-        self.phouse=OptionMenu(self.inputframe,self.cbody_hor,*self.planets,command=self.update_cbody_hor)
-  
-        self.phouse.grid(row = 1, column = 1,sticky=W)
 
         ####### move distance page #########
         movePage = Frame(nb)
@@ -261,7 +251,7 @@ class interface:
             text='Start Move', command=self.moveDist)
         self.scan.pack(side=LEFT)
 
-        ########## move to #############
+       ########## move to #############
 
         labelto = Label(movetoFrame, text = 'Move to Location')
         labelto.pack()
@@ -292,14 +282,105 @@ class interface:
         self.scan.pack(side=LEFT)
 
         self.convert=Button(self.buttonframe2,
-                            text='Convert(deg)',command=self.update_moveto)
+                            text='radec/azel',command=self.update_moveto)
         self.convert.pack(side=RIGHT)
+##############################
+        configPage=Frame(nb)
+        configFrame=Frame(configPage)
+        configFrame.pack()
+        
+        self.loclabel=Label(configFrame, text='Location')
+        self.loclabel.grid(row=0, column=0, sticky=W)
+        self.location=Entry(configFrame)
+        self.location.insert(END,'UCSB')
+        self.location.grid(row=0, column=1)
 
+        self.degtoctsAZ_l=Label(configFrame, text='degtoctsAZ')
+        self.degtoctsAZ_l.grid(row=1, column=0, sticky=W)
+        self.degtoctsAZ=Entry(configFrame)
+        self.degtoctsAZ.insert(END,'1024000./360.')
+        self.degtoctsAZ.grid(row=1, column=1)
+
+        self.degtoctsEL_l=Label(configFrame, text='degtoctsEL')
+        self.degtoctsEL_l.grid(row=2, column=0, sticky=W)
+        self.degtoctsEL=Entry(configFrame)
+        self.degtoctsEL.insert(END,'4096./360.')
+        self.degtoctsEL.grid(row=2, column=1)
+
+        self.azSP_l=Label(configFrame, text='azSP')
+        self.azSP_l.grid(row=3, column=0, sticky=W)
+        self.azSP=Entry(configFrame)
+        self.azSP.insert(END,'5')
+        self.azSP.grid(row=3, column=1)
+
+        self.azAC_l=Label(configFrame, text='azAC')
+        self.azAC_l.grid(row=4, column=0, sticky=W)
+        self.azAC=Entry(configFrame)
+        self.azAC.insert(END,'180')
+        self.azAC.grid(row=4, column=1)
+
+        self.azDC_l=Label(configFrame, text='azDC')
+        self.azDC_l.grid(row=5, column=0, sticky=W)
+        self.azDC=Entry(configFrame)
+        self.azDC.insert(END,'180')
+        self.azDC.grid(row=5, column=1)
+
+        self.elevSP_l=Label(configFrame, text='elevSP')
+        self.elevSP_l.grid(row=6, column=0, sticky=W)
+        self.elevSP=Entry(configFrame)
+        self.elevSP.insert(END,'5')
+        self.elevSP.grid(row=6, column=1)
+
+        self.elevAC_l=Label(configFrame, text='elevAC')
+        self.elevAC_l.grid(row=7, column=0, sticky=W)
+        self.elevAC=Entry(configFrame)
+        self.elevAC.insert(END,'360')
+        self.elevAC.grid(row=7, column=1)
+
+        self.elevDC_l=Label(configFrame, text='elevDC')
+        self.elevDC_l.grid(row=8, column=0, sticky=W)
+        self.elevDC=Entry(configFrame)
+        self.elevDC.insert(END,'360')
+        self.elevDC.grid(row=8, column=1)
+
+        self.azSPm_l=Label(configFrame, text='azSPm')
+        self.azSPm_l.grid(row=9, column=0, sticky=W)
+        self.azSPm=Entry(configFrame)
+        self.azSPm.insert(END,'5')
+        self.azSPm.grid(row=9,column=1)
+
+        self.azgain_l=Label(configFrame, text='azgain')
+        self.azgain_l.grid(row=10, column=0, sticky=W)
+        self.azgain=Entry(configFrame)
+        self.azgain.insert(END, '-360./(2.**16)')
+        self.azgain.grid(row=10,column=1)
+
+        self.elgain_l=Label(configFrame, text='elgain')
+        self.elgain_l.grid(row=11, column=0, sticky=W)
+        self.elgain=Entry(configFrame)
+        self.elgain.insert(END, '-360./(40000.)')
+        self.elgain.grid(row=11,column=1)
+
+        self.azoffset_l=Label(configFrame, text='azoffset')
+        self.azoffset_l.grid(row=12, column=0, sticky=W)
+        self.azoffset=Entry(configFrame)
+        self.azoffset.insert(END, '4.41496+140.')
+        self.azoffset.grid(row=12,column=1)
+
+        self.eloffset_l=Label(configFrame, text='eloffset')
+        self.eloffset_l.grid(row=13, column=0, sticky=W)
+        self.eloffset=Entry(configFrame)
+        self.eloffset.insert(END, '295.026')
+        self.eloffset.grid(row=13,column=1)
+
+        self.apply=Button(configFrame,text='Apply', command=self.global_config)
+        self.apply.grid(row=14,column=1,sticky=W)
 
         ####### notebook layout #########
         nb.add(movePage, text='Move')
         nb.add(page1, text='Az Scan')
         nb.add(nb2, text='Track')
+        nb.add(configPage,text='Configuration')
         nb2.add(page2, text = 'Linear Scan')
         nb2.add(page3, text = 'Horizontal Scan')
 
@@ -310,66 +391,44 @@ class interface:
 
         outputframe = Frame(mainFrame)
         outputframe.pack()
-
-        ###########Record and Load Configuration###########
-
-        self.outputframe4 = Frame(outputframe)
-        self.outputframe4.pack()
-        self.backup_l = Entry(self.outputframe4, width=20)
-        self.backup_l.grid(row=1,column=2,sticky=W)
-        self.backup_l.insert(END,'Target Label')
-        self.date_l=Entry(self.outputframe4, width=20)
-        self.date_l.grid(row=1,column=1,sticky=W)
-        self.date_l.insert(END,'2017-06-28')
-##        self.backup_l.insert(END,'2017-06-26/00-00-00')
-##        self.l1 = Label(mainFrame, text='yyyy-mm-dd/HH-MM-SS')
-##        self.l1.pack(side=BOTTOM)
-        self.loadbutton = Button (self.outputframe4, text='Load', command=self.read_txt)
-        self.loadbutton.grid(row=1,column=0,sticky=W)
-        
-        self.backup_r = Entry(self.outputframe4, width=20)
-        self.backup_r.grid(row=0,column=1,sticky=W)
-        self.backup_r.insert(END,'Your Label')
-        self.recordbutton = Button (self.outputframe4, text='Record', command=self.write_txt)
-        self.recordbutton.grid(row=0,column=0,sticky=W)
         
         outputframe1 = Frame(outputframe)
         outputframe1.pack()
 
-        self.outputframe2 = Frame(outputframe)
-        self.outputframe2.pack()
-
-        ##### main outputframe
+        outputframe2 = Frame(outputframe)
+        outputframe2.pack()
+        
         self.title = Label(outputframe1, text='Feedback')
         self.title.pack(side=LEFT)
 
-        self.laz = Label(self.outputframe2, text='az')
+        self.laz = Label(outputframe2, text='az')
         self.laz.grid(row = 0, column = 0, sticky = W)
 
-        self.aztxt = Text(self.outputframe2, height = 1, width = 15)
+        self.aztxt = Text(outputframe2, height = 1, width = 15)
         self.aztxt.grid(row = 0, column = 1)
 
-        self.lalt = Label(self.outputframe2, text='el')
+        self.lalt = Label(outputframe2, text='el')
         self.lalt.grid(row = 1, column = 0, sticky = W)
 
-        self.alttxt = Text(self.outputframe2, height = 1, width = 15)
+        self.alttxt = Text(outputframe2, height = 1, width = 15)
         self.alttxt.grid(row = 1, column = 1)
-        
-        self.radec=Button(self.outputframe2,text='Show RA-Dec',command=self.show_radec)
-        self.radec.grid(row=2,column=1,sticky=W)
-        self.noradec=Button(self.outputframe2,text='Hide RA-Dec',command=self.hide_radec)
-        self.noradec.grid(row=2,column=3,sticky=W)
+        '''
+        self.convertbutton = Button(mainFrame, text='RA/Dec', command=self.azel_to_radec)
+        self.convertbutton.grid(row=2, column=0)
+        self.fra = Text(outputframe2, height=1, width =5)
+        self.fra.grid(row=2, column = 1)
+        self.fdec = Text(outputframe2, height=1, width =5)
+        self.fdec.grid(row=2, column = 2) 
+        '''
+
         '''
         #galil output
         self.lazG = Label(outputframe2, text='az Galil')
         self.lazG.grid(row = 0, column = 2, sticky = W)
-
         self.aztxtG = Text(outputframe2, height = 1, width = 15)
         self.aztxtG.grid(row = 0, column = 3)
-
         self.laltG = Label(outputframe2, text='el Galil')
         self.laltG.grid(row = 1, column = 2, sticky = W)
-
         self.alttxtG = Text(outputframe2, height = 1, width = 15)
         self.alttxtG.grid(row = 1, column = 3)
         '''
@@ -377,7 +436,7 @@ class interface:
         #self.interval = interval
         thread = threading.Thread(target=self.moniter, args=())
         thread.daemon = True                            # Daemonize thread
-        thread.start() 
+        thread.start()  
         
         #thread = threading.Thread(target=self.moniterGalil, args=())
         #thread.daemon = True                            # Daemonize thread
@@ -449,38 +508,128 @@ class interface:
         
         self.motorButton = Button(mainFrame, text='Motor ON/OFF', command=self.motor)
         self.motorButton.pack(side=RIGHT)
+        
+        ###########Record and Load Configuration###########
+
+        self.outputframe4 = Frame(outputframe)
+        self.outputframe4.pack()
+        self.backup_l = Entry(self.outputframe4, width=20)
+        self.backup_l.grid(row=1,column=2,sticky=W)
+        self.backup_l.insert(END,'Target Label')
+        self.date_l=Entry(self.outputframe4, width=20)
+        self.date_l.grid(row=1,column=1,sticky=W)
+        labeltime=strftime("%Y-%m-%d")
+        self.date_l.insert(END,labeltime)
+##        self.backup_l.insert(END,'2017-06-26/00-00-00')
+##        self.l1 = Label(mainFrame, text='yyyy-mm-dd/HH-MM-SS')
+##        self.l1.pack(side=BOTTOM)
+        self.loadbutton = Button (self.outputframe4, text='Load', command=self.read_txt)
+        self.loadbutton.grid(row=1,column=0,sticky=W)
+        
+        self.backup_r = Entry(self.outputframe4, width=20)
+        self.backup_r.grid(row=0,column=1,sticky=W)
+        self.backup_r.insert(END,'Your Label')
+        self.recordbutton = Button (self.outputframe4, text='Record', command=self.write_txt)
+        self.recordbutton.grid(row=0,column=0,sticky=W)
 
 
-
+    def global_config(self):
+        global_location=self.location.get()
+        degtoctsAZ=eval(self.degtoctsAZ.get())
+        degtoctsEL=eval(self.degtoctsEL.get())
+        azSP=eval(self.azSP.get())
+        azAC=eval(self.azAC.get())
+        azDC=eval(self.azDC.get())
+        elevSP=eval(self.elevSP.get())
+        elevAC=eval(self.elevAC.get())
+        elevDC=eval(self.elevDC.get())
+        azSPm=eval(self.azSPm.get())
+        azgain=eval(self.azgain.get())
+        elgain=eval(self.elgain.get())
+        azoffset=eval(self.azoffset.get())
+        eloffset=eval(self.eloffset.get())       
+        
+        fpath='c:/Users/shulin/greenpol/'
+        os.chdir(fpath)
+        folder='config'
+        if not os.path.exists(folder):#this is the first file being created for that time
+            os.makedirs(folder)
+        os.chdir(fpath+'/'+folder)
+        configuration={'location':global_location,'degtoctsAZ':degtoctsAZ,'degtoctsEL':degtoctsEL,
+                'azSP':azSP,'azAC':azAC,'azDC':azDC,'elevSP':elevSP,'elevAC':elevAC,'elevDC':elevDC,
+                'azSPm':azSPm,'azgain':azgain,'elgain':elgain,'azoffset':azoffset,'eloffset':eloffset}
+        with open('config.txt', 'w') as handle:
+                pickle.dump(configuration,handle)
+        print 'Applying Configurations'
+        config.update_config()
+        
 
 ##                self.var.delete(0,'end')
 ##                self.var.insert(END,self.choices[i])
 
     def write_txt(self):
+        cbody_lin=self.cbody_lin.get()
+        cbody_hor=self.cbody_hor.get()
+        mtlabel1=self.mtl1.cget('text')
+        mtlabel2=self.mtl2.cget('text')
+
+        if cbody_lin=='Sky-Coord':
+            celestialcoor_lin=[cbody_lin, self.cor1_lin.get(), self.cor2_lin.get()]
+        if cbody_lin!='Sky-Coord':
+            celestialcoor_lin=cbody_lin
+
+        if cbody_hor=='Sky-Coord':
+            celestialcoor_hor=[cbody_hor, self.cor1_hor.get(), self.cor2_hor.get()]
+        if cbody_hor!='Sky-Coord':
+            celestialcoor_hor=cbody_hor
+   
+        
         data={'Move Distance':{'az':self.az.get(),'el':self.el.get()},
-                   'Move to Location':{'az':self.az2.get(),'el':self.el2.get()},
+                   'Move to Location':{mtlabel1:self.az2.get(),mtlabel2:self.el2.get()},
                    'Az Scan':{'Scan Time':self.tscan.get(),'Iteration #':
                               self.iterations.get(),'El Step Size':self.deltaEl.get()},
-                   'Linear Scan':{'Location':self.location_lin.get(),
-                                  'Celestial Object':self.cbody_lin.get(),
+                   'Linear Scan':{'Celestial Object':celestialcoor_lin,
                                   'Az Scan #':self.numAzScans_lin.get(),
                                   'Min Az':self.MinAz_lin.get(),
                                   'Max Az':self.MaxAz_lin.get()},
-                   'Horizontal Scan':{'Location':self.location_hor.get(),
-                                      'Celestial Object':self.cbody_hor.get(),
+                   'Horizontal Scan':{'Celestial Object':celestialcoor_hor,
                                       'Az Scan #':self.numAzScans_hor.get(),
                                       'Min Az':self.MinAz_hor.get(),
                                       'Max Az':self.MaxAz_hor.get(),
                                       'Min El':self.MinEl.get(),
                                       'Max El':self.MaxEl.get(),
-                                      'Step Size':self.stepSize.get()}}
+                                      'Step Size':self.stepSize.get()},
+              'Configuration':{'Location':self.location.get(),
+                               'degtoctsAZ':self.degtoctsAZ.get(),
+                               'degtoctsEL':self.degtoctsEL.get(),
+                               'azSP':self.azSP.get(),
+                               'azAC':self.azAC.get(),
+                               'azDC':self.azDC.get(),
+                               'elevSP':self.elevSP.get(),
+                               'elevAC':self.elevAC.get(),
+                               'elevDC':self.elevDC.get(),
+                               'azSPm':self.azSPm.get(),
+                               'azgain':self.azgain.get(),
+                               'elgain':self.elgain.get(),
+                               'azoffset':self.azoffset.get(),
+                               'eloffset':self.eloffset.get()},
+              'Plot':{'Date':self.date.get(),
+                      'From':self.beg.get(),
+                      'To':self.end.get()}}
+
         date = strftime("%Y-%m-%d")
         time=strftime("%H-%M-%S")
         fpath='c:/Users/shulin/greenpol/'
         os.chdir(fpath)
+        folder='memory'
+        if not os.path.exists(folder):#this is the first file being created for that time
+            os.makedirs(folder)
+        os.chdir(fpath+'/'+folder)
+
         if not os.path.exists(date):#this is the first file being created for that time
             os.makedirs(date)
-        os.chdir(fpath+'/'+date)
+        os.chdir(fpath+'/'+folder+'/'+date)
+        
 
         fname=self.backup_r.get()
 
@@ -497,12 +646,14 @@ class interface:
         fname=self.backup_l.get()
         fpath='c:/Users/shulin/greenpol/'
         date=self.date_l.get()
-        os.chdir(fpath+'/'+date)
+        folder='memory'
+        os.chdir(fpath+'/'+folder+'/'+date)
 
         try:
 
             with open(fname+'.txt', 'r') as handle:
                 data=pickle.loads(handle.read())
+            print data['Move to Location']
             print 'Loading a history config of: '+ date +','+ 'naming: '+ fname
 
             ##Move Distance
@@ -512,10 +663,15 @@ class interface:
             self.el.insert(END,data['Move Distance']['el'])
             
             ##Move to Location
+            key1,value1 = data['Move to Location'].items()[0]
+            if key1 == 'el':
+                key2='az'
+            if key1 == 'dec':
+                key2='ra'
             self.az2.delete(0,'end')
-            self.az2.insert(END,data['Move to Location']['az'])
+            self.az2.insert(END,data['Move to Location'][key2])
             self.el2.delete(0,'end')
-            self.el2.insert(END,data['Move to Location']['el'])
+            self.el2.insert(END,data['Move to Location'][key1])
 
             ##Az Scan
             self.tscan.delete(0,'end')
@@ -526,9 +682,23 @@ class interface:
             self.deltaEl.insert(END,data['Az Scan']['El Step Size'])
 
             ##Linear Scan
-            self.location_lin.delete(0,'end')
-            self.location_lin.insert(END,data['Linear Scan']['Location'])
-            self.cbody_lin.set(data['Linear Scan']['Celestial Object'])
+            celestialcoord_lin=data['Linear Scan']['Celestial Object']
+            if isinstance(celestialcoord_lin,str):
+                self.cbody_lin.set(celestialcoord_lin)
+                try:
+                    self.cor1_lin.grid_forget()
+                    self.cor2_lin.grid_forget()
+                    self.cor1l_label.grid_forget()
+                    self.cor2l_label.grid_forget()
+                except:
+                    pass
+            if isinstance(celestialcoord_lin,list):
+                self.cbody_lin.set(celestialcoord_lin[0])
+                self.update_cbody_lin(celestialcoord_lin[0])
+                self.cor1_lin.delete(0,'end')
+                self.cor2_lin.delete(0,'end')
+                self.cor1_lin.insert(END,celestialcoord_lin[1])
+                self.cor2_lin.insert(END,celestialcoord_lin[2])
             self.numAzScans_lin.delete(0,'end')
             self.numAzScans_lin.insert(END,data['Linear Scan']['Az Scan #'])
             self.MinAz_lin.delete(0,'end')
@@ -537,9 +707,23 @@ class interface:
             self.MaxAz_lin.insert(END,data['Linear Scan']['Max Az'])
 
             ##Horizontal Scan
-            self.location_hor.delete(0,'end')
-            self.location_hor.insert(END,data['Horizontal Scan']['Location'])
-            self.cbody_hor.set(data['Horizontal Scan']['Celestial Object'])
+            celestialcoord_hor=data['Horizontal Scan']['Celestial Object']
+            if isinstance(celestialcoord_hor,str):
+                self.cbody_hor.set(celestialcoord_hor)
+                try:
+                    self.cor1_hor.grid_forget()
+                    self.cor2_hor.grid_forget()
+                    self.cor1h_label.grid_forget()
+                    self.cor2h_label.grid_forget()
+                except:
+                    pass
+            if isinstance(celestialcoord_hor,list):
+                self.cbody_hor.set(celestialcoord_hor[0])
+                self.update_cbody_hor(celestialcoord_hor[0])
+                self.cor1_hor.delete(0,'end')
+                self.cor2_hor.delete(0,'end')
+                self.cor1_hor.insert(END,celestialcoord_hor[1])
+                self.cor2_hor.insert(END,celestialcoord_hor[2])
             self.numAzScans_hor.delete(0,'end')
             self.numAzScans_hor.insert(END,data['Horizontal Scan']['Az Scan #'])
             self.MinAz_hor.delete(0,'end')
@@ -552,45 +736,48 @@ class interface:
             self.MaxEl.insert(END,data['Horizontal Scan']['Max El'])
             self.stepSize.delete(0,'end')
             self.stepSize.insert(END,data['Horizontal Scan']['Step Size'])
+
+            ##configuration
+            self.location.delete(0,'end')
+            self.location.insert(END,data['Configuration']['Location'])
+            self.degtoctsAZ.delete(0,'end')
+            self.degtoctsAZ.insert(END,data['Configuration']['degtoctsAZ'])
+            self.degtoctsEL.delete(0,'end')
+            self.degtoctsEL.insert(END,data['Configuration']['degtoctsEL'])
+            self.azSP.delete(0,'end')
+            self.azSP.insert(END,data['Configuration']['azSP'])
+            self.azAC.delete(0,'end')
+            self.azAC.insert(END,data['Configuration']['azAC'])
+            self.azDC.delete(0,'end')
+            self.azDC.insert(END,data['Configuration']['azDC'])
+            self.elevSP.delete(0,'end')
+            self.elevSP.insert(END,data['Configuration']['elevSP'])
+            self.elevAC.delete(0,'end')
+            self.elevAC.insert(END,data['Configuration']['elevAC'])
+            self.elevDC.delete(0,'end')
+            self.elevDC.insert(END,data['Configuration']['elevDC'])
+            self.azSPm.delete(0,'end')
+            self.azSPm.insert(END,data['Configuration']['azSPm'])
+            self.azgain.delete(0,'end')
+            self.azgain.insert(END,data['Configuration']['azgain'])
+            self.elgain.delete(0,'end')
+            self.elgain.insert(END,data['Configuration']['elgain'])
+            self.azoffset.delete(0,'end')
+            self.azoffset.insert(END,data['Configuration']['azoffset'])
+            self.eloffset.delete(0,'end')
+            self.eloffset.insert(END,data['Configuration']['eloffset'])
+
+            ##plot
+            self.date.delete(0,'end')
+            self.date.insert(END,data['Plot']['Date'])
+            self.beg.delete(0,'end')
+            self.beg.insert(END,data['Plot']['From'])
+            self.end.delete(0,'end')
+            self.end.insert(END,data['Plot']['To'])
+
         except IOError:
             print 'No Labels Found'
-            
-    #tacking coordinate input        
-    def update_cbody_lin(self,cbody):
-        if cbody=='Sky-Cor':
-
-            self.cor1_lin=Entry(self.inputframe1,width=5)
-            self.cor1_lin.grid(row=1,column=3,sticky=W)
-            self.cor2_lin=Entry(self.inputframe1,width=5)
-            self.cor2_lin.grid(row=1,column=5,sticky=W)
-            self.cor1l_label = Label(self.inputframe1, text='RA')
-            self.cor1l_label.grid(row =1, column = 2, sticky=W)
-            self.cor2l_label = Label(self.inputframe1, text='Dec')
-            self.cor2l_label.grid(row =1, column = 4, sticky=W)
-
-        else:
-            self.cor1_lin.grid_forget()
-            self.cor2_lin.grid_forget()
-            self.cor1l_label.grid_forget()
-            self.cor2l_label.grid_forget()
-
-            
-    def update_cbody_hor(self,cbody):
-        if cbody=='Sky-Cor':
-            self.cor1_hor=Entry(self.inputframe,width=5)
-            self.cor1_hor.grid(row=1,column=3,sticky=W)
-            self.cor2_hor=Entry(self.inputframe,width=5)
-            self.cor2_hor.grid(row=1,column=5,sticky=W)
-            self.cor1h_label = Label(self.inputframe, text='RA')
-            self.cor1h_label.grid(row =1, column = 2, sticky=W)
-            self.cor2h_label = Label(self.inputframe, text='Dec')
-            self.cor2h_label.grid(row =1, column = 4, sticky=W)
-        else:
-            self.cor1_hor.grid_forget()
-            self.cor2_hor.grid_forget()
-            self.cor1h_label.grid_forget()
-            self.cor2h_label.grid_forget()    
-
+        
     ####channel options for sci_data
     def update_ch(self,value):
         if value==self.choice1[3]:
@@ -610,9 +797,52 @@ class interface:
             self.l5.grid_forget()
             self.l6.grid_forget()
         else:
-            self.option2.grid_forget()
-            self.option3.grid_forget()
-        
+            try:
+                self.option2.grid_forget()
+                self.option3.grid_forget()
+            except AttributeError:
+                pass
+            
+
+    #tacking coordinate input        
+    def update_cbody_lin(self,cbody):
+        try:
+            self.cor1_lin.grid_forget()
+            self.cor2_lin.grid_forget()
+            self.cor1l_label.grid_forget()
+            self.cor2l_label.grid_forget()
+        except:
+            pass
+        if cbody=='Sky-Coord':
+
+            self.cor1_lin=Entry(self.inputframe_lin,width=5)
+            self.cor1_lin.grid(row=1,column=3,sticky=W)
+            self.cor2_lin=Entry(self.inputframe_lin,width=5)
+            self.cor2_lin.grid(row=1,column=5,sticky=W)
+            self.cor1l_label = Label(self.inputframe_lin, text='RA')
+            self.cor1l_label.grid(row =1, column = 2, sticky=W)
+            self.cor2l_label = Label(self.inputframe_lin, text='Dec')
+            self.cor2l_label.grid(row =1, column = 4, sticky=W)
+
+
+            
+    def update_cbody_hor(self,cbody):
+        try:
+            self.cor1_hor.grid_forget()
+            self.cor2_hor.grid_forget()
+            self.cor1h_label.grid_forget()
+            self.cor2h_label.grid_forget()
+        except:
+            pass
+        if cbody=='Sky-Coord':
+            self.cor1_hor=Entry(self.inputframe_hor,width=5)
+            self.cor1_hor.grid(row=1,column=3,sticky=W)
+            self.cor2_hor=Entry(self.inputframe_hor,width=5)
+            self.cor2_hor.grid(row=1,column=5,sticky=W)
+            self.cor1h_label = Label(self.inputframe_hor, text='RA')
+            self.cor1h_label.grid(row =1, column = 2, sticky=W)
+            self.cor2h_label = Label(self.inputframe_hor, text='Dec')
+            self.cor2h_label.grid(row =1, column = 4, sticky=W)
 
 
     #keep this in case I want to compare encoder postion to galil position
@@ -635,9 +865,7 @@ class interface:
                 self.alttxtG.insert('1.0', Palt)
                 #this is currently asking galil for position, it needs to ask encoder
 
-                #time.sleep(self.interval) 
-                
-    #monitor ra-dec displaying option            
+                #time.sleep(self.interval)
     def show_radec(self):
         self.lra=Label(self.outputframe2, text='ra')
         self.lra.grid(row=0, column=2, sticky=W)
@@ -652,31 +880,33 @@ class interface:
         self.lra.grid_forget()
         self.ratxt.grid_forget()
         self.ldec.grid_forget()
-        self.dectxt.grid_forget()       
+        self.dectxt.grid_forget()
+           
     
     def moniter(self):
     
         write_time = 60
         if len(sys.argv)==1: #this is the defualt no argument write time
             sys.argv.append(60) #this sets how long it takes to write a file
-        data = np.zeros(1000, dtype=[("first", np.int), ("second", np.int)])
-        eye = gp.getData.Eyeball()
-        Data = gp.datacollector()
+        #data = np.zeros(1000, dtype=[("first", np.int), ("second", np.int)])
+##        eye = gp.getData.Eyeball()
+##        Data = gp.datacollector()
 
-        gp.fileStruct(Data.getData()) 
+        #gp.fileStruct(Data.getData()) 
 
         time_a = time.time()
         while True:
             #timer loop
 
-            az, el, gpstime = gp.getAzEl(eye)
-
-            Data.add(az,el,gpstime)
-            print Data.getData()
+##            az, el, gpstime = gp.getAzEl(eye)
+##
+##            Data.add(az,el,gpstime)
+            #print Data.getData()
             time_b = time.time()
             delta = time_b-time_a
-            location=self.location_lin.get()
+            location=config.global_location
             ra,dec=planets.azalt_to_radec(location,az,el)
+            
 
             if (delta>=2):
                 #print(rev,az,el)
@@ -690,7 +920,7 @@ class interface:
                 self.dectxt.insert('1.0', dec)
 
             if(delta>=int(write_time)): 
-                gp.fileStruct(Data.getData(), Data)
+##                gp.fileStruct(Data.getData(), Data)
                 time_a=time.time();
                 print("file written")
                 
@@ -713,30 +943,25 @@ class interface:
         #scan.azScan(tscan, iterations, deltaEl, c)
 
     def linear(self):
-        location = self.location_lin.get()
+        location = config.global_location
         cbody = self.cbody_lin.get()
         numAzScans = int(self.numAzScans_lin.get())
         MinAz = float(self.MinAz_lin.get())
         MaxAz = float(self.MaxAz_lin.get())
-        if cbody!='Sky-Cor':
-            thread = threading.Thread(target=scan.linearScan, args=(location, cbody, numAzScans, MinAz, MaxAz, c))
-            thread.daemon = True
-            thread.start()
-        if cbody=='Sky-Cor':
-            CBODY=[]
-            RA=self.cor1_lin.get()
-            DEC=self.cor2_lin.get()
-            Az,El=planets.radec_to_azalt(LOCATION,RA,DEC)
-            CBODY.append(cbody)
-            CBODY.append(Az)
-            CBODY.append(El)
-            thread = threading.Thread(target=scan.linearScan, args=(location, CBODY, numAzScans, MinAz, MaxAz, c))
-            thread.daemon = True
-            thread.start()
+
+        if cbody == 'Sky-Coord':
+            RA = self.cor1_lin.get()
+            DEC = self.cor2_lin.get()
+            cbody = [RA, DEC]
+
+        thread = threading.Thread(target=scan.linearScan, args=(location, cbody, numAzScans, MinAz, MaxAz, c))
+        thread.daemon = True
+        thread.start()
+
         #scan.linearScan(location, cbody, numAzScans, MinAz, MaxAz, c)
 
     def horizontal(self):
-        location = self.location_hor.get()
+        location = config.global_location
         cbody = self.cbody_hor.get()
         numAzScans = int(self.numAzScans_hor.get())
         MinAz = float(self.MinAz_hor.get())
@@ -744,23 +969,17 @@ class interface:
         MinEl = float(self.MinEl.get())
         MaxEl = float(self.MaxEl.get())
         stepSize = float(self.stepSize.get())
-        if cbody!='Sky-Cor':
-            thread = threading.Thread(target=scan.horizontalScan, args=(location, cbody, numAzScans, MinAz, MaxAz, MinEl, MaxEl, stepSize, c))
-            thread.daemon = True
-            thread.start()
-        if cbody=='Sky-Cor':
-            CBODY=[]
-            RA=self.cor1_hor.get()
-            DEC=self.cor2_hor.get()
-            Az,El=planets.radec_to_azalt(LOCATION,RA,DEC)
-            CBODY.append(cbody)
-            CBODY.append(Az)
-            CBODY.append(El)
-            thread = threading.Thread(target=scan.horizontalScan, args=(location, CBODY, numAzScans, MinAz, MaxAz, MinEl, MaxEl, stepSize, c))
-            thread.daemon = True
-            thread.start()
+
+        if cbody == 'Sky-Coord':
+            RA = self.cor1_lin.get()
+            DEC = self.cor2_lin.get()
+            cbody = [RA, DEC]        
+
+        thread = threading.Thread(target=scan.horizontalScan, args=(location, cbody, numAzScans, MinAz, MaxAz, MinEl, MaxEl, stepSize, c))
+        thread.daemon = True
+        thread.start()
+
         #scan.horizontalScan(location, cbody, numAzScans, MinAz, MaxAz, MinEl, MaxEl, stepSize, c)
-        
 
     def moveDist(self):
         az = float(self.az.get())
@@ -772,7 +991,7 @@ class interface:
 
         #moveto.distance(az, el, c)
 
-#moveto ra-dec displaying option
+    #moveto ra-dec displaying option
     def update_moveto(self):
         label=self.mtl1.cget('text')
         if label=='az':
@@ -782,11 +1001,7 @@ class interface:
             self.mtl2.grid_forget()
             self.mtl2=Label(self.inputframe2,text='dec')
             self.mtl2.grid(row=1,column=0,sticky=W)
-            self.mtl3=Label(self.inputframe2,text='location')
-            self.mtl3.grid(row=2,column=0,sticky=W)
-            self.loctxt=Entry(self.inputframe2,width=20)
-            self.loctxt.grid(row=2,column=1,sticky=W)
-            self.loctxt.insert(END,'UCSB')
+
         if label=='ra':
             self.mtl1.grid_forget()
             self.mtl1=Label(self.inputframe2,text='az')
@@ -794,35 +1009,32 @@ class interface:
             self.mtl2.grid_forget()
             self.mtl2=Label(self.inputframe2,text='el')
             self.mtl2.grid(row=1,column=0,sticky=W)
-            self.mtl3.grid_forget()
-            self.loctxt.grid_forget()
 
 
     def moveTo(self):
+        #check if coordinates are az/el or ra/dec
         label=self.mtl1.cget('text')
+
+        #if az/el just carry on
         if label=='az':
             az = float(self.az2.get())
             el = float(self.el2.get())
-            thread = threading.Thread(target=moveto.location, args=(az, el, c))
-            thread.daemon = True
-            thread.start()
 
-        #moveto.location(az, el, c)
+        # if ra/dec, convert to az/el
         if label=='ra':
-            location1=self.location_lin.get()
-            location2=self.location_hor.get()
-            if location1 != location2:
-                print('Please specify your location in the "Track" subwindow')
+
+            location = config.global_location
+
             ra = float(self.az2.get())
             dec = float(self.el2.get())
-            az,el=planets.radec_to_azalt(location1,ra,dec)
-            thread = threading.Thread(target=moveto.location, args=(az, el, c))
-            thread.daemon = True
-            thread.start()
+            az,el=planets.radec_to_azel(ra,dec, location)
 
+        thread = threading.Thread(target=moveto.location, args=(az, el, c))
+        thread.daemon = True
+        thread.start()
 
     def plot(self):
-        fpath='D:/software_git_repos/greenpol/telescope_control/'
+        fpath='c:/Users/shulin/greenpol/'
 
         var1 = self.bar1.get()
         date = self.date.get()
@@ -916,4 +1128,7 @@ b = interface(root)
 
 root.mainloop()
 
+
 g.GClose() #close connections
+
+
