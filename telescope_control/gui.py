@@ -1,19 +1,17 @@
 import config
 config.update_config()
-##import scan
+import scan
 import moveto
-##import connect
+import connect
 import os
 import sys
+sys.path.append('C:/Users/labuser/Desktop/python_temp')
 sys.path.append('../')
-sys.path.append('C:/Users/shulin/greenpol/telescope_control/')
-sys.path.append('C:/Users/shulin/greenpol/cofe-python-analysis-tools-master/utils_meinhold')
-sys.path.append('C:/Users/shulin/greenpol/cofe-python-analysis-tools-master/utils_zonca')
 sys.path.append('C:/Python27/Lib/site-packages/')
 #sys.path.append('C:/Python27x86/lib/site-packages')
-##sys.path.append('data_aquisition')
-##import get_pointing as gp
-##import gclib
+sys.path.append('data_aquisition')
+import get_pointing as gp
+import gclib
 import threading
 import time
 from time import strftime
@@ -28,18 +26,18 @@ import realtime_gp as rt
 import matplotlib.pyplot as plt
 from plot_path import *
 import planets
-##g = connect.g
-##c = g.GCommand
+'''
+g = connect.g
+c = g.GCommand
 ##
-##g2 = connect.g2
-##c2 = g2.GCommand
-
-##degtoctsAZ = config.degtoctsAZ
-##degtoctsEl = config.degtoctsEl
-
+g2 = connect.g2
+c2 = g2.GCommand
 #offset between galil and beam
-##offsetAz = gp.galilAzOffset 
-##offsetEl = gp.galilElOffset
+offsetAz = gp.galilAzOffset 
+offsetEl = gp.galilElOffset
+'''
+degtoctsAZ = config.degtoctsAZ
+degtoctsEl = config.degtoctsEl
 
 class interface:
 
@@ -549,7 +547,7 @@ class interface:
         azoffset=eval(self.azoffset.get())
         eloffset=eval(self.eloffset.get())       
         
-        fpath='c:/Users/shulin/greenpol/'
+        fpath='D:/software_git_repos/greenpol/telescope_control/configurations'
         os.chdir(fpath)
         folder='config'
         if not os.path.exists(folder):#this is the first file being created for that time
@@ -619,7 +617,7 @@ class interface:
 
         date = strftime("%Y-%m-%d")
         time=strftime("%H-%M-%S")
-        fpath='c:/Users/shulin/greenpol/'
+        fpath='D:/software_git_repos/greenpol/telescope_control/configurations'
         os.chdir(fpath)
         folder='memory'
         if not os.path.exists(folder):#this is the first file being created for that time
@@ -644,7 +642,7 @@ class interface:
 
     def read_txt(self):
         fname=self.backup_l.get()
-        fpath='c:/Users/shulin/greenpol/'
+        fpath='D:/software_git_repos/greenpol/telescope_control/configurations'
         date=self.date_l.get()
         folder='memory'
         os.chdir(fpath+'/'+folder+'/'+date)
@@ -1034,7 +1032,7 @@ class interface:
         thread.start()
 
     def plot(self):
-        fpath='c:/Users/shulin/greenpol/'
+        fpath='D:/software_git_repos/greenpol/telescope_control/'
 
         var1 = self.bar1.get()
         date = self.date.get()
