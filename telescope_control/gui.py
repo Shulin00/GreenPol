@@ -666,6 +666,8 @@ class interface:
                 key2='az'
             if key1 == 'dec':
                 key2='ra'
+            self.mtl1.config(text=key2)
+            self.mtl2.config(text=key1)
             self.az2.delete(0,'end')
             self.az2.insert(END,data['Move to Location'][key2])
             self.el2.delete(0,'end')
