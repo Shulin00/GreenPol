@@ -610,6 +610,17 @@ class interface:
         self.recordbutton = Button (self.outputframe4, text='Record', command=self.write_txt)
         self.recordbutton.grid(row=0,column=0,sticky=W)
 
+        #automatically load the last saved configuration at start up 
+        path='D:/software_git_repos/greenpol/telescope_control/configurations/memory'
+        os.chdir(path)
+        all_subdirs = [d for d in os.listdir('.') if os.path.isdir(d)]
+        latest_subdir = max(all_subdirs, key=os.path.getmtime)
+        os.chdir(path+latest_subdir)
+        list_of_files = glob.glob('*.txt')
+        latest_file = max(list_of_files, key=os.path.getctime)
+        fname=os.path.splitext(latest_file)[0]
+        self.read(fname=fname,date=latest_subdir)
+
     ###########Functions
 
     ## Move Distance Control
@@ -792,15 +803,14 @@ class interface:
                 pickle.dump(data,handle)
 
             print 'Recording a history config at '+ date+'/'+time +','+ 'naming: '+fname
-
-
     def read_txt(self):
         fname=self.backup_l.get()
-        fpath='D:/software_git_repos/greenpol/telescope_control/configurations'
         date=self.date_l.get()
-        folder='memory'
-        os.chdir(fpath+'/'+folder+'/'+date)
-
+        self.read(fname,date)
+        
+    def read(self,fname,date):
+        fpath='D:/software_git_repos/greenpol/telescope_control/configurations/memory/'
+        os.chdir(fpath+date)
         try:
 
             with open(fname+'.txt', 'r') as handle:
