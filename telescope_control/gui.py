@@ -234,44 +234,31 @@ class interface:
         self.l1.grid(row = 0, column = 0, sticky=W)
 
         self.l2 = Label(inputframe, text='el')
-        self.l2.grid(row = 1, column = 0, sticky=W)
+        self.l2.grid(row = 2, column = 0, sticky=W)
 
         #user input
-                self.az = Entry(inputframe)
+        self.az = Entry(inputframe,width=15)
         self.az.insert(END, '0.0')
         self.az.grid(row = 0, column = 1)
 
-        self.el = Entry(inputframe)
+        self.el = Entry(inputframe,width=15)
         self.el.insert(END, '0.0')
         self.el.grid(row = 2, column = 1)
 
-        self.scan = Button(buttonframe, 
-            text='Start Move', command=self.moveDist)
-        self.scan.pack(side=LEFT)
         
-        plus_azdis = Button(inputframe, text="+",width=5, command=self.azdis_plus) 
-        plus_azdis.grid(row=1, column=0, padx=2, pady=0, sticky="nw")
-        minus_azdis = Button(inputframe, text="-",width=5, command=self.azdis_minus)
-        minus_azdis.grid(row=1, column=1, padx=2, pady=2, sticky="nw")
-        inputframe.bind("<Left>", self.quick_azdis_plus)
-        inputframe.bind("<Right>", self.quick_azdis_minus)
-        inputframe.focus_set()
-        self.scale_range=['0.01','0.1','1','5','10','45']
-        self.azdis=StringVar()
-        self.azdis.set(self.scale_range[1])
-        self.azchange = OptionMenu(inputframe, self.azdis, *self.scale_range)
-        self.azchange.grid(row=1, column=2, padx=2, pady=0, sticky="nw")
+        plus_azdis = Button(inputframe, text="+",width=5, command=lambda:self.moveDist('+az')) 
+        plus_azdis.grid(row=1, column=0, padx=2, pady=0, sticky="W")
+        minus_azdis = Button(inputframe, text="-",width=5, command=lambda:self.moveDist('-az'))
+        minus_azdis.grid(row=1, column=1, padx=2, pady=2, sticky="W")
+        self.az.bind("<Up>", self.quick_azdis_plus)
+        self.az.bind("<Down>", self.quick_azdis_minus)
 
-        plus_eldis = Button(inputframe, text="+",width=5, command=self.eldis_plus) 
-        plus_eldis.grid(row=3, column=0, padx=2, pady=0, sticky="nw")
-        minus_eldis = Button(inputframe, text="-",width=5, command=self.eldis_minus)
-        minus_eldis.grid(row=3, column=1, padx=2, pady=2, sticky="nw")
-        inputframe.bind("<Up>", self.quick_eldis_plus)
-        inputframe.bind("<Down>", self.quick_eldis_minus)
-        self.eldis=StringVar()
-        self.eldis.set(self.scale_range[1])
-        self.elchange = OptionMenu(inputframe, self.eldis, *self.scale_range)
-        self.elchange.grid(row=3, column=2, padx=2, pady=0, sticky="nw")
+        plus_eldis = Button(inputframe, text="+",width=5, command=lambda:self.moveDist('+el')) 
+        plus_eldis.grid(row=3, column=0, padx=2, pady=0, sticky="W")
+        minus_eldis = Button(inputframe, text="-",width=5, command=lambda:self.moveDist('-el'))
+        minus_eldis.grid(row=3, column=1, sticky="W")
+        self.el.bind("<Up>", self.quick_eldis_plus)
+        self.el.bind("<Down>", self.quick_eldis_minus)
 
        ########## move to #############
 
@@ -391,62 +378,56 @@ class interface:
 
             with open('config.txt', 'r') as handle:
                 data=pickle.loads(handle.read())
+            self.location.delete(0,'end')
+            self.location.insert(END,data['location'])
+            self.degtoctsAZ.delete(0,'end')
+            self.degtoctsAZ.insert(END,data['degtoctsAZ'])
+            self.degtoctsEL.delete(0,'end')
+            self.degtoctsEL.insert(END,data['degtoctsEL'])
+            self.azSP.delete(0,'end')
+            self.azSP.insert(END,data['azSP'])
+            self.azAC.delete(0,'end')
+            self.azAC.insert(END,data['azAC'])
+            self.azDC.delete(0,'end')
+            self.azDC.insert(END,data['azDC'])
+            self.elevSP.delete(0,'end')
+            self.elevSP.insert(END,data['elevSP'])
+            self.elevAC.delete(0,'end')
+            self.elevAC.insert(END,data['elevAC'])
+            self.elevDC.delete(0,'end')
+            self.elevDC.insert(END,data['elevDC'])
+            self.azSPm.delete(0,'end')
+            self.azSPm.insert(END,data['azSPm'])
+            self.azgain.delete(0,'end')
+            self.azgain.insert(END,data['azgain'])
+            self.elgain.delete(0,'end')
+            self.elgain.insert(END,data['elgain'])
+            self.azoffset.delete(0,'end')
+            self.azoffset.insert(END,data['azoffset'])
+            self.eloffset.delete(0,'end')
+            self.eloffset.insert(END,data['eloffset'])
+        except:
+            pass
 
-		##configuration
-		self.location.delete(0,'end')
-		self.location.insert(END,data['location'])
-		self.degtoctsAZ.delete(0,'end')
-		self.degtoctsAZ.insert(END,data['degtoctsAZ'])
-		self.degtoctsEL.delete(0,'end')
-		self.degtoctsEL.insert(END,data['degtoctsEL'])
-		self.azSP.delete(0,'end')
-		self.azSP.insert(END,data['azSP'])
-		self.azAC.delete(0,'end')
-		self.azAC.insert(END,data['azAC'])
-		self.azDC.delete(0,'end')
-		self.azDC.insert(END,data['azDC'])
-		self.elevSP.delete(0,'end')
-		self.elevSP.insert(END,data['elevSP'])
-		self.elevAC.delete(0,'end')
-		self.elevAC.insert(END,data['elevAC'])
-		self.elevDC.delete(0,'end')
-		self.elevDC.insert(END,data['elevDC'])
-		self.azSPm.delete(0,'end')
-		self.azSPm.insert(END,data['azSPm'])
-		self.azgain.delete(0,'end')
-		self.azgain.insert(END,data['azgain'])
-		self.elgain.delete(0,'end')
-		self.elgain.insert(END,data['elgain'])
-		self.azoffset.delete(0,'end')
-		self.azoffset.insert(END,data['azoffset'])
-		self.eloffset.delete(0,'end')
-		self.eloffset.insert(END,data['eloffset'])
-		
-	except:
-		pass
-	plus_azoffset = Button(configFrame, text="+",width=10, command=self.azoffset_plus) 
-        plus_azoffset.grid(row=13, column=0, padx=2, pady=0, sticky="nw")
+        plus_azoffset = Button(configFrame, text="+",width=10, command=self.azoffset_plus) 
+        plus_azoffset.grid(row=13, column=0, padx=2, pady=0, sticky="W")
         minus_azoffset = Button(configFrame, text="-",width=10, command=self.azoffset_minus)
-        minus_azoffset.grid(row=13, column=1, padx=2, pady=2, sticky="nw")
-        configFrame.bind("<Left>", self.quick_azoffset_plus)
-        configFrame.bind("<Right>", self.quick_azoffset_minus)
-        configFrame.focus_set()
-        self.scale_range=['0.01','0.1','0.5','1','5','10','45']
-        self.az_change=StringVar()
-        self.az_change.set(self.scale_range[1])
-        self.azchange_scale = OptionMenu(configFrame, self.az_change, *self.scale_range)
-        self.azchange_scale.grid(row=13, column=2, padx=2, pady=0, sticky="nw")
+        minus_azoffset.grid(row=13, column=1, padx=2, pady=2, sticky="W")
+        self.az_change=Entry(configFrame,width=8)
+        self.az_change.grid(row=13, column=2, sticky="W")
+        self.az_change.insert(END,'1.0')
+        self.az_change.bind("<Up>", self.quick_azoffset_plus)
+        self.az_change.bind("<Down>", self.quick_azoffset_minus)
 
         plus_eloffset = Button(configFrame, text="+",width=10, command=self.eloffset_plus) 
-        plus_eloffset.grid(row=15, column=0, padx=2, pady=0, sticky="nw")
+        plus_eloffset.grid(row=15, column=0, padx=2, pady=0, sticky="W")
         minus_eloffset = Button(configFrame, text="-",width=10, command=self.eloffset_minus)
-        minus_eloffset.grid(row=15, column=1, padx=2, pady=2, sticky="nw")
-        configFrame.bind("<Up>", self.quick_eloffset_plus)
-        configFrame.bind("<Down>", self.quick_eloffset_minus)
-        self.el_change=StringVar()
-        self.el_change.set(self.scale_range[1])
-        self.elchange_scale = OptionMenu(configFrame, self.el_change, *self.scale_range)
-        self.elchange_scale.grid(row=15, column=2, padx=2, pady=0, sticky="nw")
+        minus_eloffset.grid(row=15, column=1, padx=2, pady=2, sticky="W")
+        self.el_change=Entry(configFrame,width=8)
+        self.el_change.grid(row=15, column=2, padx=2, pady=0, sticky="W")
+        self.el_change.insert(END,'1.0')
+        self.el_change.bind("<Up>", self.quick_eloffset_plus)
+        self.el_change.bind("<Down>", self.quick_eloffset_minus)
 
         ####### notebook layout #########
         nb.add(movePage, text='Move')
@@ -478,12 +459,25 @@ class interface:
 
         self.aztxt = Text(self.outputframe2, height = 1, width = 15)
         self.aztxt.grid(row = 0, column = 1)
+        self.aztxt.insert(END,'0.0')
 
         self.lalt = Label(self.outputframe2, text='el')
         self.lalt.grid(row = 1, column = 0, sticky = W)
 
         self.alttxt = Text(self.outputframe2, height = 1, width = 15)
         self.alttxt.grid(row = 1, column = 1)
+        self.alttxt.insert(END,'0.0')
+
+        self.lra=Label(self.outputframe2, text='ra')
+        self.lra.grid(row=0, column=2, sticky=W)
+        self.ratxt=Text(self.outputframe2, height=1, width=15)
+        self.ratxt.grid(row=0,column=3)
+
+        self.ldec=Label(self.outputframe2, text='dec')
+        self.ldec.grid(row=1, column=2, sticky=W)
+        self.dectxt=Text(self.outputframe2, height=1, width=15)
+        self.dectxt.grid(row=1, column=3)
+
 
         cap_radec=Button(self.outputframe2, text='Get ra-dec',command=self.capture_radec)
         cap_radec.grid(row=2,column=1)
@@ -620,50 +614,17 @@ class interface:
         latest_file = max(list_of_files, key=os.path.getctime)
         fname=os.path.splitext(latest_file)[0]
         self.read(fname=fname,date=latest_subdir)
+	
+	####exe
+	self.exe = Button(self.outputframe4, text = 'OpenExe', command = self.openexe)
+        self.exe.grid(row=2,column=1)
 
     ###########Functions
 
-    ## Move Distance Control
+    def openexe(self):
+        os.startfile('E:/月に寄りそう乙女の作法/近月少女的礼仪_v1.0.exe')
 
-    def azdis_plus(self):
-        a=self.az.get()
-        b=self.azdis.get()
-        tot=float(a)+float(b)
-        self.az.delete(0,'end')
-        self.az.insert(END,tot)
-        print tot
-    def azdis_minus(self):
-        a=self.az.get()
-        b=self.azdis.get()
-        tot=float(a)-float(b)
-        self.az.delete(0,'end')
-        self.az.insert(END,tot)
-        print tot
 
-    def quick_azdis_plus(self, event):
-        self.azdis_plus()
-    def quick_azdis_minus(self, event):
-        self.azdis_minus()
-
-    def eldis_plus(self):
-        a=self.el.get()
-        b=self.eldis.get()
-        tot=float(a)+float(b)
-        self.el.delete(0,'end')
-        self.el.insert(END,tot)
-        print tot
-    def eldis_minus(self):
-        a=self.el.get()
-        b=self.eldis.get()
-        tot=float(a)-float(b)
-        self.el.delete(0,'end')
-        self.el.insert(END,tot)
-        print tot
-
-    def quick_eldis_plus(self, event):
-        self.eldis_plus()
-    def quick_eldis_minus(self, event):
-        self.eldis_minus()
 
     ### Offset Control
 
@@ -673,14 +634,20 @@ class interface:
         tot=float(a)+float(b)
         self.azoffset.delete(0,'end')
         self.azoffset.insert(END,tot)
-        print tot
+        self.az.delete(0,'end')
+        self.az.insert(END,b)
+        x='+az'
+        self.moveDist(x)
     def azoffset_minus(self):
         a=self.azoffset.get()
         b=self.az_change.get()
         tot=float(a)-float(b)
         self.azoffset.delete(0,'end')
         self.azoffset.insert(END,tot)
-        print tot
+        self.az.delete(0,'end')
+        self.az.insert(END,b)
+        x='-az'
+        self.moveDist(x)
 
     def quick_azoffset_plus(self, event):
         self.azoffset_plus()
@@ -693,15 +660,21 @@ class interface:
         tot=float(a)+float(b)
         self.eloffset.delete(0,'end')
         self.eloffset.insert(END,tot)
-        print tot
+        self.el.delete(0,'end')
+        self.el.insert(END,b)
+        x='+el'
+        self.moveDist(x)
+        
     def eloffset_minus(self):
         a=self.eloffset.get()
         b=self.el_change.get()
-        tot=float(a)-float(b)
+        tot=float(a)+float(b)
         self.eloffset.delete(0,'end')
         self.eloffset.insert(END,tot)
-        print tot
-
+        self.el.delete(0,'end')
+        self.el.insert(END,b)
+        x='-el'
+        self.moveDist(x)
     def quick_eloffset_plus(self, event):
         self.eloffset_plus()
     def quick_eloffset_minus(self, event):
@@ -1008,20 +981,27 @@ class interface:
             el=float(self.alttxt.get('1.0',END))
             location=config.global_location
             ra,dec=planets.azalt_to_radec(location,az,el)
-            self.lra=Label(self.outputframe2, text='ra')
-            self.lra.grid(row=0, column=2, sticky=W)
-            self.ratxt=Text(self.outputframe2, height=1, width=15)
-            self.ratxt.grid(row=0,column=3)
-            self.ratxt.delete('1.0',END)
-            self.ratxt.insert('1.0',az)
+            if self.lra.winfo_ismapped():
+                self.ratxt.delete('1.0',END)
+                self.ratxt.insert('1.0',az)
+                self.dectxt.delete('1.0',END)
+                self.dectxt.insert('1.0',dec)
+            else:
+                
+                self.lra=Label(self.outputframe2, text='ra')
+                self.lra.grid(row=0, column=2, sticky=W)
+                self.ratxt=Text(self.outputframe2, height=1, width=15)
+                self.ratxt.grid(row=0,column=3)
+                self.ratxt.delete('1.0',END)
+                self.ratxt.insert('1.0',az)
 
-            self.ldec=Label(self.outputframe2, text='dec')
-            self.ldec.grid(row=1, column=2, sticky=W)
-            self.dectxt=Text(self.outputframe2, height=1, width=15)
-            self.dectxt.grid(row=1, column=3)
-            self.dectxt.delete('1.0',END)
-            self.dectxt.insert('1.0',dec)
-            
+                self.ldec=Label(self.outputframe2, text='dec')
+                self.ldec.grid(row=1, column=2, sticky=W)
+                self.dectxt=Text(self.outputframe2, height=1, width=15)
+                self.dectxt.grid(row=1, column=3)
+                self.dectxt.delete('1.0',END)
+                self.dectxt.insert('1.0',dec)
+ 
         except:
             pass
     
@@ -1126,9 +1106,34 @@ class interface:
 
         #scan.horizontalScan(location, cbody, numAzScans, MinAz, MaxAz, MinEl, MaxEl, stepSize, c)
 
-    def moveDist(self):
-        az = float(self.az.get())
-        el = float(self.el.get())
+    def quick_azdis_plus(self, event):
+        x='+az'
+        self.moveDist(x)
+    def quick_azdis_minus(self, event):
+        x='-az'
+        self.moveDist(x)
+    def quick_eldis_plus(self, event):
+        x='+el'
+        self.moveDist(x)
+    def quick_eldis_minus(self, event):
+        x='-el'
+        self.moveDist(x)
+
+
+    def moveDist(self,x):
+        if x=='+az':
+            az=float(self.az.get())
+            el=0
+        if x=='-az':
+            az=-float(self.az.get())
+            el=0
+        if x=='+el':
+            az=0
+            el=float(self.el.get())
+        if x=='-el':
+            az=0
+            el=-float(self.el.get())
+        print az,el
 
         thread = threading.Thread(target=moveto.distance, args=(az, el, c))
         thread.daemon = True
@@ -1181,61 +1186,73 @@ class interface:
     def plot(self):
         fpath='D:/software_git_repos/greenpol/telescope_control/'
 
-        var1 = self.bar1.get()
-        date = self.date.get()
-        beg = self.beg.get()
-        end = self.end.get()
-    
-        date = date.split('-')
-        year = date[0]
-        month = date[1]
-        day = date[2]
-        yrmoday=year+month+day
+        try:
+            var1 = self.bar1.get()
+            date = self.date.get()
+            beg = self.beg.get()
+            end = self.end.get()
 
-        time1 = beg.split('-')
-        hour1 = str(time1[0])
-        minute1 = str(time1[1])
+            try:
+                date = date.split('-')
+                year = date[0]
+                month = date[1]
+                day = date[2]
+                yrmoday=year+month+day
+            except:
+                print 'Date Format must be yyyy-mm-dd'
 
-        time2 = end.split('-')
-        hour2 = str(time2[0])
-        minute2 = str(time2[1])
+            try:
+                time1 = beg.split('-')
+                hour1 = str(time1[0])
+                minute1 = str(time1[1])
+            except:
+                print 'Time Format must be HH-MM'
 
-        if var1 != 'sci_data':
-            y=rt.get_h5_pointing(select_h5(fpath,yrmoday,hour1,minute1,
-                                            hour2,minute2))[var1]
-            t=rt.get_h5_pointing(select_h5(fpath,yrmoday,hour1,minute1,
-                                            hour2,minute2))['gpstime']
 
-            display_pointing = rt.pointing_plot(var1,y,t)
+            try:
+                time2 = end.split('-')
+                hour2 = str(time2[0])
+                minute2 = str(time2[1])
+            except:
+                print 'Time Format must be HH-MM'
 
-        else:
-            var2 = self.bar2.get()
-            var3 = self.bar3.get()
-            psd=['PSD(T)','PSD(Q)','PSD(U)']
-            parameter=['T','Q','U']
-            if var2=='all' and var3 in parameter:
-                rt.plotnow_all(fpath=fpath,yrmoday=yrmoday,chan=var2,var=var3,
-                                     st_hour=hour1,st_minute=minute1,
-                                     ed_hour=hour2,ed_minute=minute2)
-            if var2=='all' and var3 in psd:
-                indx=psd.index(var3)
-                var3=parameter[indx]
-                rt.plotnow_psd_all(fpath=fpath,yrmoday=yrmoday,chan=var2,var=var3,
-                                     st_hour=hour1,st_minute=minute1,
-                                     ed_hour=hour2,ed_minute=minute2)
-            if var2 != 'all' and var3 in psd:
-                indx=psd.index(var3)
-                var3=parameter[indx]
-                rt.plotnow_psd(fpath=fpath,yrmoday=yrmoday,chan=var2,var=var3,
-                                     st_hour=hour1,st_minute=minute1,
-                                     ed_hour=hour2,ed_minute=minute2)
-               
+            if var1 != 'sci_data':
+                y=rt.get_h5_pointing(select_h5(fpath,yrmoday,hour1,minute1,
+                                                hour2,minute2))[var1]
+                t=rt.get_h5_pointing(select_h5(fpath,yrmoday,hour1,minute1,
+                                                hour2,minute2))['gpstime']
+
+                display_pointing = rt.pointing_plot(var1,y,t)
+
             else:
+                var2 = self.bar2.get()
+                var3 = self.bar3.get()
+                psd=['PSD(T)','PSD(Q)','PSD(U)']
+                parameter=['T','Q','U']
+                if var2=='all' and var3 in parameter:
+                    rt.plotnow_all(fpath=fpath,yrmoday=yrmoday,chan=var2,var=var3,
+                                         st_hour=hour1,st_minute=minute1,
+                                         ed_hour=hour2,ed_minute=minute2)
+                if var2=='all' and var3 in psd:
+                    indx=psd.index(var3)
+                    var3=parameter[indx]
+                    rt.plotnow_psd_all(fpath=fpath,yrmoday=yrmoday,chan=var2,var=var3,
+                                         st_hour=hour1,st_minute=minute1,
+                                         ed_hour=hour2,ed_minute=minute2)
+                if var2 != 'all' and var3 in psd:
+                    indx=psd.index(var3)
+                    var3=parameter[indx]
+                    rt.plotnow_psd(fpath=fpath,yrmoday=yrmoday,chan=var2,var=var3,
+                                         st_hour=hour1,st_minute=minute1,
+                                         ed_hour=hour2,ed_minute=minute2)
+                   
+                else:
 
-                rt.plotnow(fpath=fpath,yrmoday=yrmoday,chan=var2,var=var3,
-                                     st_hour=hour1,st_minute=minute1,
-                                     ed_hour=hour2,ed_minute=minute2)
-                
+                    rt.plotnow(fpath=fpath,yrmoday=yrmoday,chan=var2,var=var3,
+                                         st_hour=hour1,st_minute=minute1,
+                                         ed_hour=hour2,ed_minute=minute2)
+        except:
+            pass
            # plt.plot(combdata[var1][var2][var3],label=ch+' '+ var3)
             
 
