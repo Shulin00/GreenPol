@@ -622,7 +622,8 @@ class interface:
     ###########Functions
 
     def openexe(self):
-        os.startfile('E:/月に寄りそう乙女の作法/近月少女的礼仪_v1.0.exe')
+		
+        os.startfile('E:/月に寄りそう乙女の作法/近月少女的礼仪_v1.0.exe') #specify the path of .exe file
 
 
 
