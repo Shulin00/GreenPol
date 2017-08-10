@@ -1,17 +1,20 @@
 import config
 config.update_config()
-import scan
+##import scan
 import moveto
-import connect
+##import connect
 import os
+import glob
 import sys
-#sys.path.append('C:/Users/labuser/Desktop/python_temp')
-sys.path.append('D:/software_git_repos/greenpol')
+sys.path.append('../')
+sys.path.append('C:/Users/shulin/greenpol/telescope_control/')
+sys.path.append('C:/Users/shulin/greenpol/cofe-python-analysis-tools-master/utils_meinhold')
+sys.path.append('C:/Users/shulin/greenpol/cofe-python-analysis-tools-master/utils_zonca')
 sys.path.append('C:/Python27/Lib/site-packages/')
 #sys.path.append('C:/Python27x86/lib/site-packages')
-sys.path.append('data_aquisition')
-import get_pointing as gp
-import gclib
+##sys.path.append('data_aquisition')
+##import get_pointing as gp
+##import gclib
 import threading
 import time
 from time import strftime
@@ -26,18 +29,20 @@ import realtime_gp as rt
 import matplotlib.pyplot as plt
 from plot_path import *
 import planets
-
-g = connect.g
-c = g.GCommand
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+##g = connect.g
+##c = g.GCommand
 ##
-g2 = connect.g2
-c2 = g2.GCommand
-#offset between galil and beam
-offsetAz = gp.galilAzOffset 
-offsetEl = gp.galilElOffset
+##g2 = connect.g2
+##c2 = g2.GCommand
 
-degtoctsAZ = config.degtoctsAZ
-degtoctsEl = config.degtoctsEl
+##degtoctsAZ = config.degtoctsAZ
+##degtoctsEl = config.degtoctsEl
+
+#offset between galil and beam
+##offsetAz = gp.galilAzOffset 
+##offsetEl = gp.galilElOffset
 
 class interface:
 
@@ -45,6 +50,8 @@ class interface:
 
         mainFrame = Frame(master)
         mainFrame.pack()
+        self.sigthread = None
+        self.plotting = False
 
         nb = ttk.Notebook(mainFrame)
 
@@ -259,6 +266,9 @@ class interface:
         minus_eldis.grid(row=3, column=1, sticky="W")
         self.el.bind("<Up>", self.quick_eldis_plus)
         self.el.bind("<Down>", self.quick_eldis_minus)
+        
+
+        
 
        ########## move to #############
 
@@ -293,85 +303,86 @@ class interface:
         self.convert=Button(self.buttonframe2,
                             text='radec/azel',command=self.update_moveto)
         self.convert.pack(side=RIGHT)
-########### configuration page ###################
+##############################
         configPage=Frame(nb)
         configFrame=Frame(configPage)
         configFrame.pack()
         
         self.loclabel=Label(configFrame, text='Location')
         self.loclabel.grid(row=0, column=0, sticky=W)
-        self.location=Entry(configFrame)
+        self.location=Entry(configFrame,width=15)
         self.location.grid(row=0, column=1)
 
         self.degtoctsAZ_l=Label(configFrame, text='degtoctsAZ')
         self.degtoctsAZ_l.grid(row=1, column=0, sticky=W)
-        self.degtoctsAZ=Entry(configFrame)
+        self.degtoctsAZ=Entry(configFrame,width=15)
         self.degtoctsAZ.grid(row=1, column=1)
 
         self.degtoctsEL_l=Label(configFrame, text='degtoctsEL')
         self.degtoctsEL_l.grid(row=2, column=0, sticky=W)
-        self.degtoctsEL=Entry(configFrame)
+        self.degtoctsEL=Entry(configFrame,width=15)
         self.degtoctsEL.grid(row=2, column=1)
 
         self.azSP_l=Label(configFrame, text='azSP')
         self.azSP_l.grid(row=3, column=0, sticky=W)
-        self.azSP=Entry(configFrame)
+        self.azSP=Entry(configFrame,width=15)
         self.azSP.grid(row=3, column=1)
 
         self.azAC_l=Label(configFrame, text='azAC')
         self.azAC_l.grid(row=4, column=0, sticky=W)
-        self.azAC=Entry(configFrame)
+        self.azAC=Entry(configFrame,width=15)
         self.azAC.grid(row=4, column=1)
 
         self.azDC_l=Label(configFrame, text='azDC')
         self.azDC_l.grid(row=5, column=0, sticky=W)
-        self.azDC=Entry(configFrame)
+        self.azDC=Entry(configFrame,width=15)
         self.azDC.grid(row=5, column=1)
 
         self.elevSP_l=Label(configFrame, text='elevSP')
         self.elevSP_l.grid(row=6, column=0, sticky=W)
-        self.elevSP=Entry(configFrame)
+        self.elevSP=Entry(configFrame,width=15)
         self.elevSP.grid(row=6, column=1)
 
         self.elevAC_l=Label(configFrame, text='elevAC')
         self.elevAC_l.grid(row=7, column=0, sticky=W)
-        self.elevAC=Entry(configFrame)
+        self.elevAC=Entry(configFrame,width=15)
         self.elevAC.grid(row=7, column=1)
 
         self.elevDC_l=Label(configFrame, text='elevDC')
         self.elevDC_l.grid(row=8, column=0, sticky=W)
-        self.elevDC=Entry(configFrame)
+        self.elevDC=Entry(configFrame,width=15)
         self.elevDC.grid(row=8, column=1)
 
         self.azSPm_l=Label(configFrame, text='azSPm')
         self.azSPm_l.grid(row=9, column=0, sticky=W)
-        self.azSPm=Entry(configFrame)
+        self.azSPm=Entry(configFrame,width=15)
         self.azSPm.grid(row=9,column=1)
 
         self.azgain_l=Label(configFrame, text='azgain')
         self.azgain_l.grid(row=10, column=0, sticky=W)
-        self.azgain=Entry(configFrame)
+        self.azgain=Entry(configFrame,width=15)
         self.azgain.grid(row=10,column=1)
 
         self.elgain_l=Label(configFrame, text='elgain')
         self.elgain_l.grid(row=11, column=0, sticky=W)
-        self.elgain=Entry(configFrame)
+        self.elgain=Entry(configFrame,width=15)
         self.elgain.grid(row=11,column=1)
 
         self.azoffset_l=Label(configFrame, text='azoffset')
         self.azoffset_l.grid(row=12, column=0, sticky=W)
-        self.azoffset=Entry(configFrame)
+        self.azoffset=Entry(configFrame,width=15)
         self.azoffset.grid(row=12,column=1)
 
         self.eloffset_l=Label(configFrame, text='eloffset')
-        self.eloffset_l.grid(row=13, column=0, sticky=W)
-        self.eloffset=Entry(configFrame)
-        self.eloffset.grid(row=13,column=1)
+        self.eloffset_l.grid(row=14, column=0, sticky=W)
+        self.eloffset=Entry(configFrame,width=15)
+        self.eloffset.grid(row=14,column=1)
 
         self.apply=Button(configFrame,text='Apply', command=self.global_config)
-        self.apply.grid(row=14,column=1,sticky=W)
-	
-        fpath='D:/software_git_repos/greenpol/telescope_control/configurations/config'
+        self.apply.grid(row=16,column=1,sticky=W)
+        
+        fpath='c:/Users/shulin/greenpol/config'
+  
         os.chdir(fpath)
 
         try:
@@ -429,11 +440,29 @@ class interface:
         self.el_change.bind("<Up>", self.quick_eloffset_plus)
         self.el_change.bind("<Down>", self.quick_eloffset_minus)
 
+        #### Live Plot
+        self.window=Frame(nb)
+##        self.btt=Button(self.window,text='plot',command=self.pplot)
+##        self.btt.pack()
+
+        
+        
+        self.pplotbutton=Button(self.window, text="pplot", command=lambda: self.pplot_thread(True))
+        self.pplotbutton.grid(row=0,column=0)
+
+        self.endbutton=Button(self.window, text="end", command=lambda: self.pplot_thread( False))
+        self.endbutton.grid(row=1,column=0)
+        
+        
+        
+
+        
         ####### notebook layout #########
         nb.add(movePage, text='Move')
         nb.add(page1, text='Az Scan')
         nb.add(nb2, text='Track')
         nb.add(configPage,text='Configuration')
+        nb.add(self.window,text='Live Plot')
         nb2.add(page2, text = 'Linear Scan')
         nb2.add(page3, text = 'Horizontal Scan')
 
@@ -483,6 +512,10 @@ class interface:
         cap_radec.grid(row=2,column=1)
         self.hide_radec=Button(self.outputframe2, text='Hide ra-dec',command=self.hide_radec)
         self.hide_radec.grid(row=2,column=3)
+        
+    
+
+        
         '''
         self.convertbutton = Button(mainFrame, text='RA/Dec', command=self.azel_to_radec)
         self.convertbutton.grid(row=2, column=0)
@@ -503,7 +536,6 @@ class interface:
         self.alttxtG = Text(outputframe2, height = 1, width = 15)
         self.alttxtG.grid(row = 1, column = 3)
         '''
-    
         #thread stuff
         #self.interval = interval
         thread = threading.Thread(target=self.moniter, args=())
@@ -604,26 +636,79 @@ class interface:
         self.recordbutton = Button (self.outputframe4, text='Record', command=self.write_txt)
         self.recordbutton.grid(row=0,column=0,sticky=W)
 
-        #automatically load the last saved configuration at start up 
-        path='D:/software_git_repos/greenpol/telescope_control/configurations/memory'
+        self.exe = Button(self.outputframe4, text = 'OpenExe', command = self.openexe)
+        self.exe.grid(row=2,column=1)
+
+        path='C:/Users/shulin/greenpol/memory/'
         os.chdir(path)
         all_subdirs = [d for d in os.listdir('.') if os.path.isdir(d)]
         latest_subdir = max(all_subdirs, key=os.path.getmtime)
+        print latest_subdir
         os.chdir(path+latest_subdir)
         list_of_files = glob.glob('*.txt')
+        print list_of_files
         latest_file = max(list_of_files, key=os.path.getctime)
         fname=os.path.splitext(latest_file)[0]
         self.read(fname=fname,date=latest_subdir)
-	
-	####exe
-	self.exe = Button(self.outputframe4, text = 'OpenExe', command = self.openexe)
-        self.exe.grid(row=2,column=1)
+        print latest_file
+###########
+    def pplot_thread(self, plotting):
 
-    ###########Functions
+        if self.sigthread != None:
+            self.plotting = False
+            self.sigthread.join()
+            self.sigthread = None
+        if plotting:
+            self.plotting = True
+            if self.sigthread == None:
+                self.sigthread = threading.Thread(target=self.pplot)
+                self.sigthread.start()
 
+
+    def pplot(self):
+        plt.clf()
+        fig=plt.figure(figsize=(4,4))
+        ax=fig.add_axes([0.1,0.1,0.8,0.8],polar=True)
+        canvas=FigureCanvasTkAgg(fig,master=self.window)
+        canvas.get_tk_widget().grid(row=0,column=1)
+        canvas.show()
+
+        c = ['r','b','g']  # plot marker colors
+        i = 0
+        #if self.plotting:
+        while self.plotting:
+            #ax.clear()         # clear axes from previous plot
+            theta = np.random.uniform(0,360,10)
+            r = np.random.uniform(0,1,10)
+            ax.plot(theta,r,linestyle="None",marker='o', color=c[i%3])
+            canvas.draw()
+            i += 1
+            time.sleep(1)
+##    def pplot(self):
+##        x=np.array ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+##        v= np.array ([16,16.31925,17.6394,16.003,17.2861,17.3131,19.1259,18.9694,22.0003,22.81226])
+##        p= np.array ([16.23697,     17.31653,     17.22094,     17.68631,     17.73641 ,    18.6368,
+##            19.32125,     19.31756 ,    21.20247  ,   22.41444   ,  22.11718  ,   22.12453])
+##
+##        fig = Figure(figsize=(6,6))
+##        a = fig.add_subplot(111)
+##        a.scatter(v,x,color='red')
+##        a.plot(p, range(2 +max(x)),color='blue')
+##        a.invert_yaxis()
+##
+##        a.set_title ("Estimation Grid", fontsize=16)
+##        a.set_ylabel("Y", fontsize=14)
+##        a.set_xlabel("X", fontsize=14)
+##
+##        canvas = FigureCanvasTkAgg(fig, master=self.window)
+##        canvas.get_tk_widget().pack()
+##        canvas.draw()
+        
+
+
+        
     def openexe(self):
-		
-        os.startfile('E:/月に寄りそう乙女の作法/近月少女的礼仪_v1.0.exe') #specify the path of .exe file
+        os.startfile('E:/月に寄りそう乙女の作法/近月少女的礼仪_v1.0.exe')
 
 
 
@@ -699,7 +784,7 @@ class interface:
         azoffset=eval(self.azoffset.get())
         eloffset=eval(self.eloffset.get())       
         
-        fpath='D:/software_git_repos/greenpol/telescope_control/configurations'
+        fpath='c:/Users/shulin/greenpol/'
         os.chdir(fpath)
         folder='config'
         if not os.path.exists(folder):#this is the first file being created for that time
@@ -749,14 +834,13 @@ class interface:
                                       'Min El':self.MinEl.get(),
                                       'Max El':self.MaxEl.get(),
                                       'Step Size':self.stepSize.get()},
-		      'Plot':{'Date':self.date.get(),
-			      'From':self.beg.get(),
-			      'To':self.end.get()}}
+              'Plot':{'Date':self.date.get(),
+                      'From':self.beg.get(),
+                      'To':self.end.get()}}
 
         date = strftime("%Y-%m-%d")
         time=strftime("%H-%M-%S")
-        fpath='D:/software_git_repos/greenpol/telescope_control/configurations'
-        #fpath='D:/software_git_repos/greenpol/telescope_control/configurations'
+        fpath='c:/Users/shulin/greenpol/'
         os.chdir(fpath)
         folder='memory'
         if not os.path.exists(folder):#this is the first file being created for that time
@@ -777,14 +861,17 @@ class interface:
                 pickle.dump(data,handle)
 
             print 'Recording a history config at '+ date+'/'+time +','+ 'naming: '+fname
+
+
     def read_txt(self):
         fname=self.backup_l.get()
         date=self.date_l.get()
         self.read(fname,date)
         
     def read(self,fname,date):
-        fpath='D:/software_git_repos/greenpol/telescope_control/configurations/memory/'
+        fpath='c:/Users/shulin/greenpol/memory/'
         os.chdir(fpath+date)
+
         try:
 
             with open(fname+'.txt', 'r') as handle:
@@ -874,7 +961,6 @@ class interface:
             self.MaxEl.insert(END,data['Horizontal Scan']['Max El'])
             self.stepSize.delete(0,'end')
             self.stepSize.insert(END,data['Horizontal Scan']['Step Size'])
-
 
 
             ##plot
@@ -1014,16 +1100,15 @@ class interface:
             self.dectxt.grid_forget()
         except:
             pass
-           
-    
+     
     def moniter(self):
     
         write_time = 60
         if len(sys.argv)==1: #this is the defualt no argument write time
             sys.argv.append(60) #this sets how long it takes to write a file
         #data = np.zeros(1000, dtype=[("first", np.int), ("second", np.int)])
-        eye = gp.getData.Eyeball()
-        Data = gp.datacollector()
+##        eye = gp.getData.Eyeball()
+##        Data = gp.datacollector()
 
         #gp.fileStruct(Data.getData()) 
 
@@ -1031,12 +1116,15 @@ class interface:
         while True:
             #timer loop
 
-            az, el, gpstime = gp.getAzEl(eye)
-
-            Data.add(az,el,gpstime)
+##            az, el, gpstime = gp.getAzEl(eye)
+##
+##            Data.add(az,el,gpstime)
             #print Data.getData()
             time_b = time.time()
             delta = time_b-time_a
+            location=config.global_location
+            ra,dec=planets.azalt_to_radec(location,az,el)
+            
 
             if (delta>=2):
                 #print(rev,az,el)
@@ -1044,6 +1132,10 @@ class interface:
                 self.aztxt.insert('1.0', az)
                 self.alttxt.delete('1.0', END)
                 self.alttxt.insert('1.0', el)
+                self.ratxt.delete('1.0', END)
+                self.ratxt.insert('1.0', ra)
+                self.dectxt.delete('1.0', END)
+                self.dectxt.insert('1.0', dec)
 
             if(delta>=int(write_time)): 
 ##                gp.fileStruct(Data.getData(), Data)
@@ -1106,7 +1198,9 @@ class interface:
         thread.start()
 
         #scan.horizontalScan(location, cbody, numAzScans, MinAz, MaxAz, MinEl, MaxEl, stepSize, c)
+    ## Move Distance Control
 
+    
     def quick_azdis_plus(self, event):
         x='+az'
         self.moveDist(x)
@@ -1185,8 +1279,8 @@ class interface:
         thread.start()
 
     def plot(self):
-        fpath='D:/software_git_repos/greenpol/telescope_control/'
-
+        plt.figure()
+        fpath='c:/Users/shulin/greenpol/'
         try:
             var1 = self.bar1.get()
             date = self.date.get()
@@ -1216,6 +1310,8 @@ class interface:
                 minute2 = str(time2[1])
             except:
                 print 'Time Format must be HH-MM'
+
+
 
             if var1 != 'sci_data':
                 y=rt.get_h5_pointing(select_h5(fpath,yrmoday,hour1,minute1,
@@ -1252,8 +1348,10 @@ class interface:
                     rt.plotnow(fpath=fpath,yrmoday=yrmoday,chan=var2,var=var3,
                                          st_hour=hour1,st_minute=minute1,
                                          ed_hour=hour2,ed_minute=minute2)
+
         except:
             pass
+                
            # plt.plot(combdata[var1][var2][var3],label=ch+' '+ var3)
             
 
@@ -1261,8 +1359,7 @@ class interface:
     
     def stop(self):
         print('stopping motion...')
-        c('STX')
-	c('STY')
+        c('ST')
     
     def motor(self):
         status = str(self.motorTxt.get('1.0',END))
@@ -1294,3 +1391,5 @@ root.mainloop()
 
 
 g.GClose() #close connections
+
+
